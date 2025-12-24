@@ -21,7 +21,7 @@ HESTIA_PHP_VER='8.3.23'
 
 export PATH=$PATH:/sbin # Ensure /sbin is in PATH
 export DEBIAN_FRONTEND=noninteractive # Disable interactive apt-get prompts
-HESTIA_DEB_URL='https://script-php.ro/hestia' # Hestia deb repository URL
+HESTIA_DEB_URL='https://script-php.ro' # Hestia deb repository URL
 VERSION='ubuntu' # Installer version
 HESTIA='/usr/local/hestia' # Hestia install directory
 LOG="/root/hst_install_backups/hst_install-$(date +%d%m%Y%H%M).log" # Log file
@@ -1204,23 +1204,23 @@ echo "========================================================================"
 echo
 
 # Install Hestia packages from local folder or download from repository
-if [ -n "$withdebs" ] && [ -d "$withdebs" ]; then
-	echo "[ * ] Installing Hestia packages from local folder..."
-	echo "    - hestia core package"
-	dpkg -i $withdebs/hestia_*.deb > /dev/null 2>&1
-	check_result $? "Failed to install hestia package from local folder"
+# if [ -n "$withdebs" ] && [ -d "$withdebs" ]; then
+# 	echo "[ * ] Installing Hestia packages from local folder..."
+# 	echo "    - hestia core package"
+# 	dpkg -i $withdebs/hestia_*.deb > /dev/null 2>&1
+# 	check_result $? "Failed to install hestia package from local folder"
 
-	echo "    - hestia-php backend package"
-	dpkg -i $withdebs/hestia-php_*.deb > /dev/null 2>&1
-	check_result $? "Failed to install hestia-php package from local folder"
+# 	echo "    - hestia-php backend package"
+# 	dpkg -i $withdebs/hestia-php_*.deb > /dev/null 2>&1
+# 	check_result $? "Failed to install hestia-php package from local folder"
 
-	echo "    - hestia-nginx backend package"
-	dpkg -i $withdebs/hestia-nginx_*.deb > /dev/null 2>&1
-	check_result $? "Failed to install hestia-nginx package from local folder"
-else
-	# Download and install Hestia packages from repository
-	install_hestia_packages
-fi
+# 	echo "    - hestia-nginx backend package"
+# 	dpkg -i $withdebs/hestia-nginx_*.deb > /dev/null 2>&1
+# 	check_result $? "Failed to install hestia-nginx package from local folder"
+# else
+# 	# Download and install Hestia packages from repository
+# 	install_hestia_packages
+# fi
 
 # Restoring autostart policy
 rm -f /usr/sbin/policy-rc.d

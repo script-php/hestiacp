@@ -1162,6 +1162,26 @@ chmod a+x /usr/sbin/policy-rc.d
 echo "The installer is now downloading and installing all required packages."
 echo -ne "NOTE: This process may take 10 to 15 minutes to complete, please wait... "
 echo
+
+# Install Hestia packages from local folder or download from repository
+if [ -n "$withdebs" ] && [ -d "$withdebs" ]; then
+	echo "[ * ] Installing Hestia packages from local folder..."
+	echo "    - hestia core package"
+	dpkg -i $withdebs/hestia_*.deb > /dev/null 2>&1
+	check_result $? "Failed to install hestia package from local folder"
+
+	echo "    - hestia-php backend package"
+	dpkg -i $withdebs/hestia-php_*.deb > /dev/null 2>&1
+	check_result $? "Failed to install hestia-php package from local folder"
+
+	echo "    - hestia-nginx backend package"
+	dpkg -i $withdebs/hestia-nginx_*.deb > /dev/null 2>&1
+	check_result $? "Failed to install hestia-nginx package from local folder"
+else
+	# Download and install Hestia packages from repository
+	install_hestia_packages
+fi
+
 apt-get -y install $software > $LOG
 BACK_PID=$!
 

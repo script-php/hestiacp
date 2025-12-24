@@ -11,42 +11,49 @@
 # ======================================================== #
 
 #----------------------------------------------------------#
-#                  Variables&Functions                     #
+#                 Variables & Functions                    #
 #----------------------------------------------------------#
-export PATH=$PATH:/sbin
-export DEBIAN_FRONTEND=noninteractive
-RHOST='apt.hestiacp.com'
-VERSION='ubuntu'
-HESTIA='/usr/local/hestia'
-LOG="/root/hst_install_backups/hst_install-$(date +%d%m%Y%H%M).log"
-memory=$(grep 'MemTotal' /proc/meminfo | tr ' ' '\n' | grep [0-9])
-hst_backups="/root/hst_install_backups/$(date +%d%m%Y%H%M)"
-spinner="/-\|"
-os='ubuntu'
-release="$(lsb_release -s -r)"
-codename="$(lsb_release -s -c)"
-architecture="$(arch)"
-HESTIA_INSTALL_DIR="$HESTIA/install/deb"
-HESTIA_COMMON_DIR="$HESTIA/install/common"
-VERBOSE='no'
 
-# Define software versions
+# Hestia Installer version
 HESTIA_INSTALL_VER='1.9.4'
+
+export PATH=$PATH:/sbin # Ensure /sbin is in PATH
+export DEBIAN_FRONTEND=noninteractive # Disable interactive apt-get prompts
+HESTIA_DEB_URL='https://script-php.ro/hestia' # Hestia deb repository URL
+VERSION='ubuntu' # Installer version
+HESTIA='/usr/local/hestia' # Hestia install directory
+LOG="/root/hst_install_backups/hst_install-$(date +%d%m%Y%H%M).log" # Log file
+memory=$(grep 'MemTotal' /proc/meminfo | tr ' ' '\n' | grep [0-9]) # Total memory in KB
+hst_backups="/root/hst_install_backups/$(date +%d%m%Y%H%M)" # Backup directory
+spinner="/-\|" # Spinner characters for loading animation
+os='ubuntu' # Operating System
+release="$(lsb_release -s -r)" # e.g. 20.04, 22.04, 24.04
+codename="$(lsb_release -s -c)" # e.g. focal, jammy, noble
+architecture="$(arch)" # System architecture e.g. x86_64
+HESTIA_INSTALL_DIR="$HESTIA/install/deb" # Hestia install scripts directory
+HESTIA_COMMON_DIR="$HESTIA/install/common" # Hestia common install scripts directory
+VERBOSE='no' # Verbose output
+
+
 # Supported PHP versions
 multiphp_v=("5.6" "7.0" "7.1" "7.2" "7.3" "7.4" "8.0" "8.1" "8.2" "8.3" "8.4")
+
 # One of the following PHP versions is required for Roundcube / phpmyadmin
-multiphp_required=("7.3" "7.4" "8.0" "8.1" "8.2" "8.3")
+multiphp_required=("7.3" "7.4" "8.0" "8.1" "8.2" "8.3") 
+
 # Default PHP version if none supplied
 fpm_v="8.3"
+
 # MariaDB version
 mariadb_v="11.4"
+
 # Node.js version
 node_v="20"
 
-# Defining software pack for all distros
+# Software packages to install
 software="acl apache2 apache2.2-common apache2-suexec-custom apache2-utils apparmor-utils at awstats bc bind9 bsdmainutils bsdutils
   clamav-daemon cron curl dnsutils dovecot-imapd dovecot-managesieved dovecot-pop3d dovecot-sieve e2fslibs e2fsprogs
-  exim4 exim4-daemon-heavy expect fail2ban flex ftp git hestia=${HESTIA_INSTALL_VER} hestia-nginx hestia-php hestia-web-terminal
+  exim4 exim4-daemon-heavy expect fail2ban flex ftp git
   idn2 imagemagick ipset jq libapache2-mod-fcgid libapache2-mod-php$fpm_v libapache2-mod-rpaf libonig5 libzip4 lsb-release
   lsof mariadb-client mariadb-common mariadb-server mc mysql-client mysql-common mysql-server nginx nodejs openssh-server
   php$fpm_v php$fpm_v-apcu php$fpm_v-bz2 php$fpm_v-cgi php$fpm_v-cli php$fpm_v-common php$fpm_v-curl php$fpm_v-gd
@@ -55,6 +62,7 @@ software="acl apache2 apache2.2-common apache2-suexec-custom apache2-utils appar
   proftpd-core proftpd-mod-crypto quota rrdtool rsyslog util-linux spamassassin
   sysstat unzip vim-common vsftpd whois zip zstd bubblewrap restic"
 
+# Installer dependencies
 installer_dependencies="apt-transport-https ca-certificates curl dirmngr gnupg openssl software-properties-common wget sudo"
 
 # Defining help function
@@ -98,6 +106,59 @@ help() {
 # Defining file download function
 download_file() {
 	wget $1 -q --show-progress --progress=bar:force
+}
+
+# Download and install Hestia packages from repository
+install_hestia_packages() {
+	local temp_dir=$(mktemp -d) # Create temporary directory
+
+	echo "[ * ] Downloading Hestia packages from repository..."
+
+	# Download hestia package
+	echo "    - Downloading hestia_${HESTIA_VER}_amd64.deb..."
+	wget -q --show-progress --progress=bar:force \
+		"${HESTIA_DEB_URL}/hestia/${codename}/hestia_${HESTIA_VER}_amd64.deb" \
+		-O "${temp_dir}/hestia_${HESTIA_VER}_amd64.deb"
+	check_result $? "Failed to download hestia_${HESTIA_VER}_amd64.deb"
+
+	echo "    - Installing hestia package"
+	dpkg -i "${temp_dir}/hestia_${HESTIA_VER}_amd64.deb" >> $LOG 2>&1
+	check_result $? "Failed to install hestia package"
+
+	# Download hestia-php package
+	echo "    - Downloading hestia-php_${HESTIA_PHP_VER}_amd64.deb..."
+	wget -q --show-progress --progress=bar:force \
+		"${HESTIA_DEB_URL}/hestia/${codename}/hestia-php_${HESTIA_PHP_VER}_amd64.deb" \
+		-O "${temp_dir}/hestia-php_${HESTIA_PHP_VER}_amd64.deb"
+	check_result $? "Failed to download hestia-php_${HESTIA_PHP_VER}_amd64.deb"
+
+	echo "    - Installing hestia-php package"
+	dpkg -i "${temp_dir}/hestia-php_${HESTIA_PHP_VER}_amd64.deb" >> $LOG 2>&1
+	if [ $? -ne 0 ]; then
+		echo "      ERROR: Failed to install hestia-php package"
+		echo "      Run: apt-get install -f to fix dependencies"
+		tail -20 $LOG
+		check_result 1 "Installation failed - check log above"
+	fi
+
+	# Download hestia-nginx package
+	echo "    - Downloading hestia-nginx_${HESTIA_NGINX_VER}_amd64.deb..."
+	wget -q --show-progress --progress=bar:force \
+		"${HESTIA_DEB_URL}/hestia/${codename}/hestia-nginx_${HESTIA_NGINX_VER}_amd64.deb" \
+		-O "${temp_dir}/hestia-nginx_${HESTIA_NGINX_VER}_amd64.deb"
+	check_result $? "Failed to download hestia-nginx_${HESTIA_NGINX_VER}_amd64.deb"
+
+	echo "    - Installing hestia-nginx package"
+	dpkg -i "${temp_dir}/hestia-nginx_${HESTIA_NGINX_VER}_amd64.deb" >> $LOG 2>&1
+	if [ $? -ne 0 ]; then
+		echo "      ERROR: Failed to install hestia-nginx package"
+		echo "      Run: apt-get install -f to fix dependencies"
+		tail -20 $LOG
+		check_result 1 "Installation failed - check log above"
+	fi
+
+	# Cleanup temp directory
+	rm -rf "${temp_dir}"
 }
 
 # Defining password-gen function
@@ -454,9 +515,7 @@ echo "[ * ] Installing dependencies..."
 apt-get -y install $installer_dependencies >> $LOG
 check_result $? "Package installation failed, check log file for more details."
 
-# Check repository availability
-wget --quiet "https://$RHOST" -O /dev/null
-check_result $? "Unable to connect to the Hestia APT repository"
+
 
 # Check installed packages
 tmpfile=$(mktemp -p /tmp)
@@ -839,9 +898,11 @@ if [ "$mysql" = 'yes' ]; then
 fi
 
 # Installing HestiaCP repo
-echo "[ * ] Hestia Control Panel"
-echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/hestia-keyring.gpg] https://$RHOST/ $codename main" > $apt/hestia.list
-gpg --no-default-keyring --keyring /usr/share/keyrings/hestia-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys A189E93654F0B0E5 > /dev/null 2>&1
+# echo "[ * ] Hestia Control Panel"
+# echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/hestia-keyring.gpg] https://$RHOST/ $codename main" > $apt/hestia.list
+# gpg --no-default-keyring --keyring /usr/share/keyrings/hestia-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys A189E93654F0B0E5 > /dev/null 2>&1
+
+
 
 # Installing Node.js repo
 if [ "$webterminal" = 'yes' ]; then
@@ -1120,37 +1181,23 @@ echo
 echo "========================================================================"
 echo
 
-# Install Hestia packages from local folder
+# Install Hestia packages from local folder or download from repository
 if [ -n "$withdebs" ] && [ -d "$withdebs" ]; then
-	echo "[ * ] Installing local package files..."
+	echo "[ * ] Installing Hestia packages from local folder..."
 	echo "    - hestia core package"
 	dpkg -i $withdebs/hestia_*.deb > /dev/null 2>&1
+	check_result $? "Failed to install hestia package from local folder"
 
-	if [ -z $(ls $withdebs/hestia-php_*.deb 2> /dev/null) ]; then
-		echo "    - hestia-php backend package (from apt)"
-		apt-get -y install hestia-php > /dev/null 2>&1
-	else
-		echo "    - hestia-php backend package"
-		dpkg -i $withdebs/hestia-php_*.deb > /dev/null 2>&1
-	fi
+	echo "    - hestia-php backend package"
+	dpkg -i $withdebs/hestia-php_*.deb > /dev/null 2>&1
+	check_result $? "Failed to install hestia-php package from local folder"
 
-	if [ -z $(ls $withdebs/hestia-nginx_*.deb 2> /dev/null) ]; then
-		echo "    - hestia-nginx backend package (from apt)"
-		apt-get -y install hestia-nginx > /dev/null 2>&1
-	else
-		echo "    - hestia-nginx backend package"
-		dpkg -i $withdebs/hestia-nginx_*.deb > /dev/null 2>&1
-	fi
-
-	if [ "$webterminal" = "yes" ]; then
-		if [ -z $(ls $withdebs/hestia-web-terminal_*.deb 2> /dev/null) ]; then
-			echo "    - hestia-web-terminal package (from apt)"
-			apt-get -y install hestia-web-terminal > /dev/null 2>&1
-		else
-			echo "    - hestia-web-terminal"
-			dpkg -i $withdebs/hestia-web-terminal_*.deb > /dev/null 2>&1
-		fi
-	fi
+	echo "    - hestia-nginx backend package"
+	dpkg -i $withdebs/hestia-nginx_*.deb > /dev/null 2>&1
+	check_result $? "Failed to install hestia-nginx package from local folder"
+else
+	# Download and install Hestia packages from repository
+	install_hestia_packages
 fi
 
 # Restoring autostart policy

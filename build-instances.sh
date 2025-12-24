@@ -225,6 +225,105 @@ build_all() {
 	fi
 }
 
+# Create a test instance
+create_test_instance() {
+	local distro="${1:-focal}"
+	local instance_name="hestia-test-${distro}"
+
+	log_info "Creating test instance: $instance_name"
+
+	if instance_exists "$instance_name"; then
+		log_warning "Test instance $instance_name already exists"
+		return 0
+	fi
+
+	multipass launch \
+		--name "$instance_name" \
+		--memory "$MEMORY" \
+		--disk "$DISK" \
+		--cpus "$CPUS" \
+		"${distro}" || {
+		log_error "Failed to create test instance $instance_name"
+		return 1
+	}
+
+	log_success "Created test instance: $instance_name"
+}
+
+# Install panel on test instance
+install_panel_on_test() {
+	local distro="${1:-focal}"
+	local instance_name="hestia-test-${distro}"
+	local branch="${2:-main}"
+	local hostname="${3:-test.script-php.ro}"
+	local username="${4:-admin}"
+	local email="${5:-test@script-php.ro}"
+	local password="${6:-illegall}"
+
+	if ! instance_exists "$instance_name"; then
+		log_error "Test instance $instance_name does not exist. Create it first with: $0 test create $distro"
+		return 1
+	fi
+
+	log_info "Installing panel on test instance $instance_name"
+	log_info "  Hostname: $hostname"
+	log_info "  Username: $username"
+	log_info "  Email: $email"
+
+	# Download installer on test instance
+	multipass exec "$instance_name" -- bash -c "
+		wget -O /tmp/hst-install-ubuntu.sh https://raw.githubusercontent.com/script-php/hestiacp/refs/heads/${branch}/install/hst-install-ubuntu.sh
+	" || {
+		log_error "Failed to download installer on test instance"
+		return 1
+	}
+
+	# Run installer on test instance
+	multipass exec "$instance_name" -- bash -c "
+		sudo bash /tmp/hst-install-ubuntu.sh --hostname '${hostname}' --username '${username}' --email '${email}' --password '${password}'
+	" || {
+		log_error "Failed to install panel on test instance"
+		return 1
+	}
+
+	log_success "Panel installed on $instance_name"
+	log_info "Access the instance with: $0 test shell $distro"
+}
+
+# Access test instance shell
+access_test_instance() {
+	local distro="${1:-focal}"
+	local instance_name="hestia-test-${distro}"
+
+	if ! instance_exists "$instance_name"; then
+		log_error "Test instance $instance_name does not exist"
+		return 1
+	fi
+
+	log_info "Accessing shell on $instance_name (type 'exit' to disconnect)"
+	multipass shell "$instance_name"
+}
+
+# Delete test instance
+delete_test_instance() {
+	local distro="${1:-focal}"
+	local instance_name="hestia-test-${distro}"
+
+	if ! instance_exists "$instance_name"; then
+		log_warning "Test instance $instance_name does not exist"
+		return 0
+	fi
+
+	log_info "Deleting test instance: $instance_name"
+
+	multipass delete "$instance_name" --purge || {
+		log_error "Failed to delete test instance $instance_name"
+		return 1
+	}
+
+	log_success "Deleted test instance: $instance_name"
+}
+
 # Show usage
 show_usage() {
 	cat << EOF
@@ -242,6 +341,12 @@ Commands:
   delete <distro>           Delete instance
   delete-all                Delete all instances
   list                      List all instances
+
+  test create <distro>      Create test instance (focal, jammy, noble)
+  test install <distro>     Install panel on test instance
+  test shell <distro>       Access test instance shell
+  test delete <distro>      Delete test instance
+
   help                      Show this help message
 
 Options:
@@ -254,8 +359,12 @@ Examples:
   $0 full jammy
   $0 build-all
   $0 build-all parallel
-  $0 delete noble
-  $0 --memory 8G setup focal
+  
+  # Testing workflow:
+  $0 test create focal
+  $0 test install focal
+  $0 test shell focal
+  $0 test delete focal
 
 EOF
 }
@@ -312,6 +421,31 @@ main() {
 					delete_instance "$distro"
 				done
 				exit 0
+				;;
+			test)
+				case "$2" in
+					create)
+						create_test_instance "${3:-focal}"
+						exit 0
+						;;
+					install)
+						install_panel_on_test "${3:-focal}"
+						exit 0
+						;;
+					shell)
+						access_test_instance "${3:-focal}"
+						exit 0
+						;;
+					delete)
+						delete_test_instance "${3:-focal}"
+						exit 0
+						;;
+					*)
+						log_error "Unknown test command: $2"
+						show_usage
+						exit 1
+						;;
+				esac
 				;;
 			list)
 				list_instances

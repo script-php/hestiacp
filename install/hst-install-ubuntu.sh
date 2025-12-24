@@ -125,7 +125,7 @@ install_hestia_packages() {
 	check_result $? "Failed to download hestia_${HESTIA_INSTALL_VER}_amd64.deb"
 
 	echo "    - Installing hestia package"
-	dpkg -i "${temp_dir}/hestia_${HESTIA_INSTALL_VER}_amd64.deb" >> $LOG 2>&1
+	apt-get install -y "${temp_dir}/hestia_${HESTIA_INSTALL_VER}_amd64.deb" >> $LOG 2>&1
 	check_result $? "Failed to install hestia package"
 
 	# Download hestia-php package
@@ -137,7 +137,7 @@ install_hestia_packages() {
 	check_result $? "Failed to download hestia-php_${HESTIA_PHP_VER}_amd64.deb"
 
 	echo "    - Installing hestia-php package"
-	dpkg -i "${temp_dir}/hestia-php_${HESTIA_PHP_VER}_amd64.deb" >> $LOG 2>&1
+	apt-get install -y "${temp_dir}/hestia-php_${HESTIA_PHP_VER}_amd64.deb" >> $LOG 2>&1
 	if [ $? -ne 0 ]; then
 		echo "      ERROR: Failed to install hestia-php package"
 		echo "      Run: apt-get install -f to fix dependencies"
@@ -154,7 +154,7 @@ install_hestia_packages() {
 	check_result $? "Failed to download hestia-nginx_${HESTIA_NGINX_VER}_amd64.deb"
 
 	echo "    - Installing hestia-nginx package"
-	dpkg -i "${temp_dir}/hestia-nginx_${HESTIA_NGINX_VER}_amd64.deb" >> $LOG 2>&1
+	apt-get install -y "${temp_dir}/hestia-nginx_${HESTIA_NGINX_VER}_amd64.deb" >> $LOG 2>&1
 	if [ $? -ne 0 ]; then
 		echo "      ERROR: Failed to install hestia-nginx package"
 		echo "      Run: apt-get install -f to fix dependencies"

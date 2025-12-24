@@ -51,3 +51,5 @@ npm-debug.log
 
 # optional eslint cache
 .eslintcache
+hestiacp-debs/
+src/archive/

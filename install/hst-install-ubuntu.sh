@@ -16,6 +16,8 @@
 
 # Hestia Installer version
 HESTIA_INSTALL_VER='1.9.4'
+HESTIA_NGINX_VER='1.28.0'
+HESTIA_PHP_VER='8.3.23'
 
 export PATH=$PATH:/sbin # Ensure /sbin is in PATH
 export DEBIAN_FRONTEND=noninteractive # Disable interactive apt-get prompts
@@ -115,14 +117,14 @@ install_hestia_packages() {
 	echo "[ * ] Downloading Hestia packages from repository..."
 
 	# Download hestia package
-	echo "    - Downloading hestia_${HESTIA_VER}_amd64.deb..."
+	echo "    - Downloading hestia_${HESTIA_INSTALL_VER}_amd64.deb..."
 	wget -q --show-progress --progress=bar:force \
-		"${HESTIA_DEB_URL}/hestia/${codename}/hestia_${HESTIA_VER}_amd64.deb" \
-		-O "${temp_dir}/hestia_${HESTIA_VER}_amd64.deb"
-	check_result $? "Failed to download hestia_${HESTIA_VER}_amd64.deb"
+		"${HESTIA_DEB_URL}/hestia/${codename}/hestia_${HESTIA_INSTALL_VER}_amd64.deb" \
+		-O "${temp_dir}/hestia_${HESTIA_INSTALL_VER}_amd64.deb"
+	check_result $? "Failed to download hestia_${HESTIA_INSTALL_VER}_amd64.deb"
 
 	echo "    - Installing hestia package"
-	dpkg -i "${temp_dir}/hestia_${HESTIA_VER}_amd64.deb" >> $LOG 2>&1
+	dpkg -i "${temp_dir}/hestia_${HESTIA_INSTALL_VER}_amd64.deb" >> $LOG 2>&1
 	check_result $? "Failed to install hestia package"
 
 	# Download hestia-php package

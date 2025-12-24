@@ -118,6 +118,7 @@ install_hestia_packages() {
 
 	# Download hestia package
 	echo "    - Downloading hestia_${HESTIA_INSTALL_VER}_amd64.deb..."
+	echo "${HESTIA_DEB_URL}/hestia/${codename}/hestia_${HESTIA_INSTALL_VER}_amd64.deb"
 	wget -q --show-progress --progress=bar:force \
 		"${HESTIA_DEB_URL}/hestia/${codename}/hestia_${HESTIA_INSTALL_VER}_amd64.deb" \
 		-O "${temp_dir}/hestia_${HESTIA_INSTALL_VER}_amd64.deb"
@@ -129,6 +130,7 @@ install_hestia_packages() {
 
 	# Download hestia-php package
 	echo "    - Downloading hestia-php_${HESTIA_PHP_VER}_amd64.deb..."
+	echo "${HESTIA_DEB_URL}/hestia/${codename}/hestia-php_${HESTIA_PHP_VER}_amd64.deb"
 	wget -q --show-progress --progress=bar:force \
 		"${HESTIA_DEB_URL}/hestia/${codename}/hestia-php_${HESTIA_PHP_VER}_amd64.deb" \
 		-O "${temp_dir}/hestia-php_${HESTIA_PHP_VER}_amd64.deb"
@@ -145,6 +147,7 @@ install_hestia_packages() {
 
 	# Download hestia-nginx package
 	echo "    - Downloading hestia-nginx_${HESTIA_NGINX_VER}_amd64.deb..."
+	echo "${HESTIA_DEB_URL}/hestia/${codename}/hestia-nginx_${HESTIA_NGINX_VER}_amd64.deb"
 	wget -q --show-progress --progress=bar:force \
 		"${HESTIA_DEB_URL}/hestia/${codename}/hestia-nginx_${HESTIA_NGINX_VER}_amd64.deb" \
 		-O "${temp_dir}/hestia-nginx_${HESTIA_NGINX_VER}_amd64.deb"

@@ -151,7 +151,6 @@ install_hestia_packages() {
 	echo "    - Installing hestia-nginx package"
 	apt-get install -f -y "${temp_dir}/hestia-nginx_${HESTIA_NGINX_VER}_amd64.deb" >> $LOG 2>&1
 	check_result $? "Failed to install hestia-nginx package"
-	fi
 
 	# Cleanup temp directory
 	rm -rf "${temp_dir}"

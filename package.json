@@ -15,7 +15,6 @@
 		"lint": "prettier --cache --check . && eslint --cache . && stylelint web/css/src/**/*.css && markdownlint-cli2 *.md docs/**/*.md",
 		"lint-staged": "lint-staged",
 		"format": "prettier --cache --write .",
-		"preinstall": "npx only-allow npm",
 		"prepare": "husky"
 	},
 	"dependencies": {

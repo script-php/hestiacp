@@ -2,11 +2,11 @@
 
 # set -e
 # Autocompile Script for HestiaCP package Files.
-# For building from local source folder use "~localsrc" keyword as hesia branch name,
-#   and the script will not try to download the arhive from github, since '~' char is
-#   not accepted in branch name.
-# Compile but dont install -> ./hst_autocompile.sh --hestia --noinstall --keepbuild '~localsrc'
-# Compile and install -> ./hst_autocompile.sh --hestia --install '~localsrc'
+# This script always uses the local source folder for compilation.
+# It will not download source code from GitHub.
+#
+# Compile but dont install -> ./hst_autocompile.sh --hestia --noinstall --keepbuild
+# Compile and install -> ./hst_autocompile.sh --hestia --install
 
 # Clear previous screen output
 clear
@@ -70,22 +70,18 @@ get_branch_file() {
 	local filename=$1
 	local destination=$2
 	[ "$HESTIA_DEBUG" ] && echo >&2 DEBUG: Get branch file "$filename" to "$destination"
-	if [ "$use_src_folder" == 'true' ]; then
-		if [ -z "$destination" ]; then
-			[ "$HESTIA_DEBUG" ] && echo >&2 DEBUG: cp -f "$SRC_DIR/$filename" ./
-			cp -f "$SRC_DIR/$filename" ./
-		else
-			[ "$HESTIA_DEBUG" ] && echo >&2 DEBUG: cp -f "$SRC_DIR/$filename" "$destination"
-			cp -f "$SRC_DIR/$filename" "$destination"
-		fi
+	if [ -z "$destination" ]; then
+		[ "$HESTIA_DEBUG" ] && echo >&2 DEBUG: cp -f "$SRC_DIR/$filename" ./
+		cp -f "$SRC_DIR/$filename" ./
 	else
-		download_file "https://raw.githubusercontent.com/$REPO/$branch/$filename" "$destination" $3
+		[ "$HESTIA_DEBUG" ] && echo >&2 DEBUG: cp -f "$SRC_DIR/$filename" "$destination"
+		cp -f "$SRC_DIR/$filename" "$destination"
 	fi
 }
 
 usage() {
 	echo "Usage:"
-	echo "    $0 (--all|--hestia|--nginx|--php|--web-terminal) [options] [branch] [Y]"
+	echo "    $0 (--all|--hestia|--nginx|--php|--web-terminal) [options]"
 	echo ""
 	echo "    --all           Build all hestia packages."
 	echo "    --hestia        Build only the Control Panel package."
@@ -98,17 +94,11 @@ usage() {
 	echo "    --cross         Compile hestia package for both AMD64 and ARM64"
 	echo "    --debug         Debug mode"
 	echo ""
-	echo "For automated builds and installations, you may specify the branch"
-	echo "after one of the above flags. To install the packages, specify 'Y'"
-	echo "following the branch name."
-	echo ""
-	echo "Example: bash hst_autocompile.sh --hestia develop Y"
-	echo "This would install a Hestia Control Panel package compiled with the"
-	echo "develop branch code."
+	echo "Example: bash hst_autocompile.sh --hestia --install"
+	echo "This would build and install a Hestia Control Panel package from local source."
 }
 
 # Set compiling directory
-REPO='hestiacp/hestiacp'
 BUILD_DIR='/tmp/hestiacp-src'
 INSTALL_DIR='/usr/local/hestia'
 SRC_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -189,34 +179,23 @@ fi
 clear
 
 # Set command variables
-if [ -z $branch ]; then
-	echo -n "Please enter the name of the branch to build from (e.g. main): "
-	read branch
-fi
-
-if [ $(echo "$branch" | grep '^~localsrc') ]; then
-	branch=$(echo "$branch" | sed 's/^~//')
-	use_src_folder='true'
-else
-	use_src_folder='false'
-fi
+# Always use local source folder
+use_src_folder='true'
 
 if [ -z $install ]; then
 	echo -n 'Would you like to install the compiled packages? [y/N] '
 	read install
 fi
 
-# Set Version for compiling
-if [ -f "$SRC_DIR/src/deb/hestia/control" ] && [ "$use_src_folder" == 'true' ]; then
+# Set Version for compiling from local source
+if [ -f "$SRC_DIR/src/deb/hestia/control" ]; then
 	BUILD_VER=$(cat $SRC_DIR/src/deb/hestia/control | grep "Version:" | cut -d' ' -f2)
 	NGINX_V=$(cat $SRC_DIR/src/deb/nginx/control | grep "Version:" | cut -d' ' -f2)
 	PHP_V=$(cat $SRC_DIR/src/deb/php/control | grep "Version:" | cut -d' ' -f2)
 	WEB_TERMINAL_V=$(cat $SRC_DIR/src/deb/web-terminal/control | grep "Version:" | cut -d' ' -f2)
 else
-	BUILD_VER=$(curl -s https://raw.githubusercontent.com/$REPO/$branch/src/deb/hestia/control | grep "Version:" | cut -d' ' -f2)
-	NGINX_V=$(curl -s https://raw.githubusercontent.com/$REPO/$branch/src/deb/nginx/control | grep "Version:" | cut -d' ' -f2)
-	PHP_V=$(curl -s https://raw.githubusercontent.com/$REPO/$branch/src/deb/php/control | grep "Version:" | cut -d' ' -f2)
-	WEB_TERMINAL_V=$(curl -s https://raw.githubusercontent.com/$REPO/$branch/src/deb/web-terminal/control | grep "Version:" | cut -d' ' -f2)
+	echo "Error: Cannot find control files in $SRC_DIR/src/deb/"
+	exit 1
 fi
 
 if [ -z "$BUILD_VER" ]; then
@@ -225,6 +204,7 @@ if [ -z "$BUILD_VER" ]; then
 fi
 
 echo "Build version $BUILD_VER, with Nginx version $NGINX_V, PHP version $PHP_V and Web Terminal version $WEB_TERMINAL_V"
+echo "Using local source from: $SRC_DIR"
 
 if [ -e "/etc/redhat-release" ]; then
 	HESTIA_V="${BUILD_VER}"
@@ -314,7 +294,6 @@ if [ "$HESTIA_DEBUG" ]; then
 	else
 		echo "OS type          : Debian / Ubuntu"
 	fi
-	echo "Branch           : $branch"
 	echo "Install          : $install"
 	echo "Build RPM        : $BUILD_RPM"
 	echo "Build DEB        : $BUILD_DEB"
@@ -327,8 +306,7 @@ if [ "$HESTIA_DEBUG" ]; then
 	echo "Source directory : $SRC_DIR"
 fi
 
-# Generate Links for sourcecode
-HESTIA_ARCHIVE_LINK='https://github.com/hestiacp/hestiacp/archive/'$branch'.tar.gz'
+# Generate Links for sourcecode (external dependencies only)
 if [[ $NGINX_V =~ - ]]; then
 	NGINX='https://nginx.org/download/nginx-'$(echo $NGINX_V | cut -d"-" -f1)'.tar.gz'
 else
@@ -344,9 +322,6 @@ if [[ $PHP_V =~ - ]]; then
 else
 	PHP='http://de2.php.net/distributions/php-'$(echo $PHP_V | cut -d"~" -f1)'.tar.gz'
 fi
-
-# Forward slashes in branchname are replaced with dashes to match foldername in github archive.
-branch_dash=$(echo "$branch" | sed 's/\//-/g')
 
 #################################################################################
 #
@@ -414,8 +389,8 @@ if [ "$NGINX_B" = true ]; then
 		fi
 
 		# Copy local hestia source files
-		if [ "$use_src_folder" == 'true' ] && [ -d $SRC_DIR ]; then
-			cp -rf "$SRC_DIR/" $BUILD_DIR/hestiacp-$branch_dash
+		if [ -d $SRC_DIR ]; then
+			cp -rf "$SRC_DIR/" $BUILD_DIR/hestiacp-src
 		fi
 
 		# Create the files and install them
@@ -471,8 +446,8 @@ if [ "$NGINX_B" = true ]; then
 			# Clean up the source folder
 			rm -r hestia- nginx_$NGINX_V
 			rm -rf $BUILD_DIR/rpmbuild
-			if [ "$use_src_folder" == 'true' ] && [ -d $BUILD_DIR/hestiacp-$branch_dash ]; then
-				rm -r $BUILD_DIR/hestiacp-$branch_dash
+			if [ -d $BUILD_DIR/hestiacp-src ]; then
+				rm -r $BUILD_DIR/hestiacp-src
 			fi
 		fi
 	fi
@@ -555,9 +530,9 @@ if [ "$PHP_B" = true ]; then
 		make -j $NUM_CPUS && make INSTALL_ROOT=$BUILD_DIR install
 
 		# Copy local hestia source files
-		if [ "$use_src_folder" == 'true' ] && [ -d $SRC_DIR ]; then
-			[ "$HESTIA_DEBUG" ] && echo DEBUG: cp -rf "$SRC_DIR/" $BUILD_DIR/hestiacp-$branch_dash
-			cp -rf "$SRC_DIR/" $BUILD_DIR/hestiacp-$branch_dash
+		if [ -d $SRC_DIR ]; then
+			[ "$HESTIA_DEBUG" ] && echo DEBUG: cp -rf "$SRC_DIR/" $BUILD_DIR/hestiacp-src
+			cp -rf "$SRC_DIR/" $BUILD_DIR/hestiacp-src
 		fi
 		# Move php directory
 		[ "$HESTIA_DEBUG" ] && echo DEBUG: mkdir -p $BUILD_DIR_HESTIAPHP/usr/local/hestia
@@ -614,8 +589,8 @@ if [ "$PHP_B" = true ]; then
 		if [ "$KEEPBUILD" != 'true' ]; then
 			rm -r $BUILD_DIR/php-$(echo $PHP_V | cut -d"~" -f1)
 			rm -r $BUILD_DIR_HESTIAPHP
-			if [ "$use_src_folder" == 'true' ] && [ -d $BUILD_DIR/hestiacp-$branch_dash ]; then
-				rm -r $BUILD_DIR/hestiacp-$branch_dash
+			if [ -d $BUILD_DIR/hestiacp-src ]; then
+				rm -r $BUILD_DIR/hestiacp-src
 			fi
 		fi
 	fi
@@ -701,8 +676,8 @@ if [ "$WEB_TERMINAL_B" = true ]; then
 		# clear up the source folder
 		if [ "$KEEPBUILD" != 'true' ]; then
 			rm -r $BUILD_DIR_HESTIA_TERMINAL
-			if [ "$use_src_folder" == 'true' ] && [ -d $BUILD_DIR/hestiacp-$branch_dash ]; then
-				rm -r $BUILD_DIR/hestiacp-$branch_dash
+			if [ -d $BUILD_DIR/hestiacp-src ]; then
+				rm -r $BUILD_DIR/hestiacp-src
 			fi
 		fi
 	fi
@@ -740,20 +715,15 @@ if [ "$HESTIA_B" = true ]; then
 			fi
 
 			cd $BUILD_DIR
-			rm -rf $BUILD_DIR/hestiacp-$branch_dash
-			# Download and unpack source files
-			if [ "$use_src_folder" == 'true' ]; then
-				[ "$HESTIA_DEBUG" ] && echo DEBUG: cp -rf "$SRC_DIR/" $BUILD_DIR/hestiacp-$branch_dash
-				cp -rf "$SRC_DIR/" $BUILD_DIR/hestiacp-$branch_dash
-			elif [ -d $SRC_DIR ]; then
-				download_file $HESTIA_ARCHIVE_LINK '-' 'fresh' | tar xz
-			fi
-
+		rm -rf $BUILD_DIR/hestiacp-src
+		# Copy local source files
+		[ "$HESTIA_DEBUG" ] && echo DEBUG: cp -rf "$SRC_DIR/" $BUILD_DIR/hestiacp-src
+		cp -rf "$SRC_DIR/" $BUILD_DIR/hestiacp-src
 			mkdir -p $BUILD_DIR_HESTIA/usr/local/hestia
 
 			# Build web and move needed directories
-			cd $BUILD_DIR/hestiacp-$branch_dash
-			npm ci --ignore-scripts
+		cd $BUILD_DIR/hestiacp-src
+			npm ci
 			npm run build
 			cp -rf bin func install web $BUILD_DIR_HESTIA/usr/local/hestia/
 
@@ -785,9 +755,9 @@ if [ "$HESTIA_B" = true ]; then
 			# clear up the source folder
 			if [ "$KEEPBUILD" != 'true' ]; then
 				rm -r $BUILD_DIR_HESTIA
-				rm -rf hestiacp-$branch_dash
-			fi
-			cd $BUILD_DIR/hestiacp-$branch_dash
+			rm -rf hestiacp-src
+		fi
+		cd $BUILD_DIR/hestiacp-src
 		fi
 
 		if [ "$BUILD_RPM" = true ]; then

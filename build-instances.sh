@@ -256,7 +256,7 @@ install_panel_on_test() {
 	local instance_name="hestia-test-${distro}"
 	local branch="${2:-main}"
 	local hostname="${3:-test.script-php.ro}"
-	local username="${4:-admin}"
+	local username="${4:-yoyo}"
 	local email="${5:-test@script-php.ro}"
 	local password="${6:-illegall}"
 

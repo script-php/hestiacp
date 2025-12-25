@@ -111,7 +111,6 @@ else
 fi
 DEB_DIR="$BUILD_DIR/deb"
 BUILD_DEB=true
-OSTYPE='debian'
 
 # Set packages to compile
 for i in $*; do
@@ -257,11 +256,7 @@ fi
 NUM_CPUS=$(grep "^cpu cores" /proc/cpuinfo | uniq | awk '{print $4}')
 
 if [ "$HESTIA_DEBUG" ]; then
-	if [ "$OSTYPE" = 'rhel' ]; then
-		echo "OS type          : RHEL / Rocky Linux / AlmaLinux / EuroLinux"
-	else
-		echo "OS type          : Debian / Ubuntu"
-	fi
+	echo "OS type          : Ubuntu"
 	echo "Install          : $install"
 	echo "Build DEB        : $BUILD_DEB"
 	echo "Hestia version   : $BUILD_VER"

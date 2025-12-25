@@ -81,12 +81,10 @@ E_RESTART=20
 detect_os() {
 	if [ -e "/etc/os-release" ]; then
 		get_os_type=$(grep "^ID=" /etc/os-release | cut -f 2 -d '=')
-
 		if [ -e '/usr/bin/lsb_release' ]; then
 			OS_VERSION="$(lsb_release -s -r)"
 			OS_TYPE='Ubuntu'
 		fi
-
 	else
 		OS_TYPE="Unsupported OS"
 		OS_VERSION="Unknown"

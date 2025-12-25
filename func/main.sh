@@ -81,15 +81,12 @@ E_RESTART=20
 detect_os() {
 	if [ -e "/etc/os-release" ]; then
 		get_os_type=$(grep "^ID=" /etc/os-release | cut -f 2 -d '=')
-		if [ "$get_os_type" = "ubuntu" ]; then
-			if [ -e '/usr/bin/lsb_release' ]; then
-				OS_VERSION="$(lsb_release -s -r)"
-				OS_TYPE='Ubuntu'
-			fi
-		elif [ "$get_os_type" = "debian" ]; then
-			OS_TYPE='Debian'
-			OS_VERSION=$(cat /etc/debian_version | grep -o "[0-9]\{1,2\}" | head -n1)
+
+		if [ -e '/usr/bin/lsb_release' ]; then
+			OS_VERSION="$(lsb_release -s -r)"
+			OS_TYPE='Ubuntu'
 		fi
+
 	else
 		OS_TYPE="Unsupported OS"
 		OS_VERSION="Unknown"
@@ -1588,7 +1585,6 @@ is_hestia_package() {
 }
 
 # Run arbitrary cli commands with dropped privileges
-# Note: setpriv --init-groups is not available on debian9 (util-linux 2.29.2)
 # Input:
 #     - $user : Vaild hestia user
 user_exec() {

@@ -109,17 +109,9 @@ if [ $architecture == 'aarch64' ]; then
 else
 	BUILD_ARCH='amd64'
 fi
-RPM_DIR="$BUILD_DIR/rpm/"
 DEB_DIR="$BUILD_DIR/deb"
-if [ -f '/etc/redhat-release' ]; then
-	BUILD_RPM=true
-	BUILD_DEB=false
-	OSTYPE='rhel'
-else
-	BUILD_RPM=false
-	BUILD_DEB=true
-	OSTYPE='debian'
-fi
+BUILD_DEB=true
+OSTYPE='debian'
 
 # Set packages to compile
 for i in $*; do
@@ -206,11 +198,7 @@ fi
 echo "Build version $BUILD_VER, with Nginx version $NGINX_V, PHP version $PHP_V and Web Terminal version $WEB_TERMINAL_V"
 echo "Using local source from: $SRC_DIR"
 
-if [ -e "/etc/redhat-release" ]; then
-	HESTIA_V="${BUILD_VER}"
-else
-	HESTIA_V="${BUILD_VER}_${BUILD_ARCH}"
-fi
+HESTIA_V="${BUILD_VER}_${BUILD_ARCH}"
 OPENSSL_V='3.4.0'
 PCRE_V='10.44'
 ZLIB_V='1.3.1'
@@ -221,7 +209,6 @@ if [ "$KEEPBUILD" != 'true' ]; then
 fi
 mkdir -p $BUILD_DIR
 mkdir -p $DEB_DIR
-mkdir -p $RPM_DIR
 mkdir -p $ARCHIVE_DIR
 
 # Define a timestamp function
@@ -230,59 +217,40 @@ timestamp() {
 }
 
 if [ "$dontinstalldeps" != 'true' ]; then
-	# Install needed software
-	if [ "$OSTYPE" = 'rhel' ]; then
-		# Set package dependencies for compiling
-		SOFTWARE='wget tar git curl mock rpm-build rpmdevtools'
+	# Set package dependencies for compiling
+	SOFTWARE='wget tar git curl build-essential libxml2-dev libz-dev libzip-dev libgmp-dev libcurl4-gnutls-dev unzip openssl libssl-dev pkg-config libsqlite3-dev libonig-dev lsb-release'
 
-		echo "Updating system DNF repositories..."
-		dnf install -y -q 'dnf-command(config-manager)'
-		dnf install -y -q dnf-plugins-core epel-release
-		dnf config-manager --set-enabled powertools > /dev/null 2>&1
-		dnf config-manager --set-enabled PowerTools > /dev/null 2>&1
-		dnf config-manager --set-enabled crb > /dev/null 2>&1
-		dnf upgrade -y -q
-		echo "Installing dependencies for compilation..."
-		dnf install -y -q $SOFTWARE
-		rpmdev-setuptree
-		if [ ! -d "/var/lib/mock/rocky+epel-9-$(arch)-bootstrap" ]; then
-			mock -r rocky+epel-9-$(arch) --init
-		fi
-	else
-		# Set package dependencies for compiling
-		SOFTWARE='wget tar git curl build-essential libxml2-dev libz-dev libzip-dev libgmp-dev libcurl4-gnutls-dev unzip openssl libssl-dev pkg-config libsqlite3-dev libonig-dev rpm lsb-release'
+	echo "Updating system APT repositories..."
+	apt-get -qq update > /dev/null 2>&1
+	echo "Installing dependencies for compilation..."
+	apt-get -qq install -y $SOFTWARE > /dev/null 2>&1
 
-		echo "Updating system APT repositories..."
-		apt-get -qq update > /dev/null 2>&1
-		echo "Installing dependencies for compilation..."
-		apt-get -qq install -y $SOFTWARE > /dev/null 2>&1
+	# Installing Node.js 20.x repo
+	apt="/etc/apt/sources.list.d"
+	codename="$(lsb_release -s -c)"
 
-		# Installing Node.js 20.x repo
-		apt="/etc/apt/sources.list.d"
-		codename="$(lsb_release -s -c)"
+	if [ -z $(which "node") ]; then
+		curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+	fi
 
-		if [ -z $(which "node") ]; then
-			curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-		fi
+	echo "Installing Node.js..."
+	apt-get -qq update > /dev/null 2>&1
+	apt -qq install -y nodejs > /dev/null 2>&1
 
-		echo "Installing Node.js..."
-		apt-get -qq update > /dev/null 2>&1
-		apt -qq install -y nodejs > /dev/null 2>&1
+	nodejs_version=$(/usr/bin/node -v | cut -f1 -d'.' | sed 's/v//g')
 
-		nodejs_version=$(/usr/bin/node -v | cut -f1 -d'.' | sed 's/v//g')
+	if [ "$nodejs_version" -lt 18 ]; then
+		echo "Requires Node.js 18.x or higher"
+		exit 1
+	fi
 
-		if [ "$nodejs_version" -lt 18 ]; then
-			echo "Requires Node.js 18.x or higher"
-			exit 1
-		fi
-
-		# Fix for Debian PHP environment
-		if [ $BUILD_ARCH == "amd64" ]; then
-			if [ ! -L /usr/local/include/curl ]; then
-				ln -s /usr/include/x86_64-linux-gnu/curl /usr/local/include/curl
-			fi
+	# Fix for Debian PHP environment
+	if [ $BUILD_ARCH == "amd64" ]; then
+		if [ ! -L /usr/local/include/curl ]; then
+			ln -s /usr/include/x86_64-linux-gnu/curl /usr/local/include/curl
 		fi
 	fi
+	
 fi
 
 # Get system cpu cores
@@ -295,7 +263,6 @@ if [ "$HESTIA_DEBUG" ]; then
 		echo "OS type          : Debian / Ubuntu"
 	fi
 	echo "Install          : $install"
-	echo "Build RPM        : $BUILD_RPM"
 	echo "Build DEB        : $BUILD_DEB"
 	echo "Hestia version   : $BUILD_VER"
 	echo "Nginx version    : $NGINX_V"
@@ -445,28 +412,10 @@ if [ "$NGINX_B" = true ]; then
 		if [ "$KEEPBUILD" != 'true' ]; then
 			# Clean up the source folder
 			rm -r hestia- nginx_$NGINX_V
-			rm -rf $BUILD_DIR/rpmbuild
 			if [ -d $BUILD_DIR/hestiacp-src ]; then
 				rm -r $BUILD_DIR/hestiacp-src
 			fi
 		fi
-	fi
-
-	if [ "$BUILD_RPM" = true ]; then
-		# Get RHEL package files
-		get_branch_file 'src/rpm/nginx/nginx.conf' "$HOME/rpmbuild/SOURCES/nginx.conf"
-		get_branch_file 'src/rpm/nginx/hestia-nginx.spec' "$HOME/rpmbuild/SPECS/hestia-nginx.spec"
-		get_branch_file 'src/rpm/nginx/hestia-nginx.service' "$HOME/rpmbuild/SOURCES/hestia-nginx.service"
-
-		# Download source files
-		download_file $NGINX "$HOME/rpmbuild/SOURCES/"
-
-		# Build the package
-		echo Building Nginx RPM
-		rpmbuild -bs ~/rpmbuild/SPECS/hestia-nginx.spec
-		mock -r rocky+epel-9-$(arch) ~/rpmbuild/SRPMS/hestia-nginx-$NGINX_V-1.el9.src.rpm
-		cp /var/lib/mock/rocky+epel-9-$(arch)/result/*.rpm $RPM_DIR
-		rm -rf ~/rpmbuild/SPECS/* ~/rpmbuild/SOURCES/* ~/rpmbuild/SRPMS/*
 	fi
 fi
 
@@ -593,24 +542,6 @@ if [ "$PHP_B" = true ]; then
 				rm -r $BUILD_DIR/hestiacp-src
 			fi
 		fi
-	fi
-
-	if [ "$BUILD_RPM" = true ]; then
-		# Get RHEL package files
-		get_branch_file 'src/rpm/php/php-fpm.conf' "$HOME/rpmbuild/SOURCES/php-fpm.conf"
-		get_branch_file 'src/rpm/php/php.ini' "$HOME/rpmbuild/SOURCES/php.ini"
-		get_branch_file 'src/rpm/php/hestia-php.spec' "$HOME/rpmbuild/SPECS/hestia-php.spec"
-		get_branch_file 'src/rpm/php/hestia-php.service' "$HOME/rpmbuild/SOURCES/hestia-php.service"
-
-		# Download source files
-		download_file $PHP "$HOME/rpmbuild/SOURCES/"
-
-		# Build RPM package
-		echo Building PHP RPM
-		rpmbuild -bs ~/rpmbuild/SPECS/hestia-php.spec
-		mock -r rocky+epel-9-$(arch) ~/rpmbuild/SRPMS/hestia-php-$PHP_V-1.el9.src.rpm
-		cp /var/lib/mock/rocky+epel-9-$(arch)/result/*.rpm $RPM_DIR
-		rm -rf ~/rpmbuild/SPECS/* ~/rpmbuild/SOURCES/* ~/rpmbuild/SRPMS/*
 	fi
 fi
 
@@ -760,25 +691,6 @@ if [ "$HESTIA_B" = true ]; then
 		cd $BUILD_DIR/hestiacp-src
 		fi
 
-		if [ "$BUILD_RPM" = true ]; then
-			# Pre-clean
-			rm -rf ~/rpmbuild/SOURCES/*
-
-			# Get RHEL package files
-			get_branch_file 'src/rpm/hestia/hestia.spec' "$HOME/rpmbuild/SPECS/hestia.spec"
-			get_branch_file 'src/rpm/hestia/hestia.service' "$HOME/rpmbuild/SOURCES/hestia.service"
-
-			# Generate source tar.gz
-			tar -czf $HOME/rpmbuild/SOURCES/hestia-$BUILD_VER.tar.gz -C $SRC_DIR/.. hestiacp
-
-			# Build RPM package
-			echo Building Hestia RPM
-			rpmbuild -bs ~/rpmbuild/SPECS/hestia.spec
-			mock -r rocky+epel-9-$(arch) ~/rpmbuild/SRPMS/hestia-$BUILD_VER-1.el9.src.rpm
-			cp /var/lib/mock/rocky+epel-9-$(arch)/result/*.rpm $RPM_DIR
-			rm -rf ~/rpmbuild/SPECS/* ~/rpmbuild/SOURCES/* ~/rpmbuild/SRPMS/*
-		fi
-
 	done
 fi
 
@@ -791,20 +703,13 @@ fi
 if [ "$install" = 'yes' ] || [ "$install" = 'y' ] || [ "$install" = 'true' ]; then
 	# Install all available packages
 	echo "Installing packages..."
-	if [ "$OSTYPE" = 'rhel' ]; then
-		for i in $RPM_DIR/*.rpm; do
-			dnf -y install $i
-			if [ $? -ne 0 ]; then
-				exit 1
-			fi
-		done
-	else
-		for i in $DEB_DIR/*.deb; do
-			dpkg -i $i
-			if [ $? -ne 0 ]; then
-				exit 1
-			fi
-		done
-	fi
+
+	for i in $DEB_DIR/*.deb; do
+		dpkg -i $i
+		if [ $? -ne 0 ]; then
+			exit 1
+		fi
+	done
+
 	unset $answer
 fi

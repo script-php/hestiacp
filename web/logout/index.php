@@ -15,7 +15,6 @@ if (!empty($_SESSION["look"])) {
 		$return_var,
 	);
 	unset($_SESSION["look"]);
-	# Remove current path for filemanager
 	unset($_SESSION["_sf2_attributes"]);
 	unset($_SESSION["_sf2_meta"]);
 	header("Location: /");

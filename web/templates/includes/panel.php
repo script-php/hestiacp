@@ -168,22 +168,6 @@
 					<div x-cloak x-show="open" x-on:click.outside="open = false" class="top-bar-menu-panel">
 						<ul class="top-bar-menu-list">
 
-							<!-- File Manager -->
-							<?php if (isset($_SESSION["FILE_MANAGER"]) && !empty($_SESSION["FILE_MANAGER"]) && $_SESSION["FILE_MANAGER"] == "true") { ?>
-								<?php if ($_SESSION["userContext"] === "admin" && $_SESSION["look"] === "admin" && $_SESSION["POLICY_SYSTEM_PROTECTED_ADMIN"] == "yes") { ?>
-									<!-- Hide file manager when impersonating admin-->
-								<?php } else { ?>
-									<li class="top-bar-menu-item">
-										<a title="<?= _("File manager") ?>" class="top-bar-menu-link <?php if ($TAB == "FM") {
-	echo "active";
-} ?>" href="/fm/">
-											<i class="fas fa-folder-open"></i>
-											<span class="top-bar-menu-link-label u-hide-desktop"><?= _("File manager") ?></span>
-										</a>
-									</li>
-								<?php } ?>
-							<?php } ?>
-
 							<!-- Web Terminal -->
 							<?php if (isset($_SESSION["WEB_TERMINAL"]) && !empty($_SESSION["WEB_TERMINAL"]) && $_SESSION["WEB_TERMINAL"] == "true") { ?>
 								<?php if ($_SESSION["userContext"] === "admin" && $_SESSION["look"] === "admin" && $_SESSION["POLICY_SYSTEM_PROTECTED_ADMIN"] == "yes") { ?>

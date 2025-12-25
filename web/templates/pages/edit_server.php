@@ -1471,19 +1471,6 @@
 						</select>
 					</div>
 					<div class="u-mb10">
-						<label for="v_filemanager" class="form-label">
-							<?= _("File Manager") ?>
-						</label>
-						<select class="form-select" name="v_filemanager" id="v_filemanager">
-							<option value="false">
-								<?= _("No") ?>
-							</option>
-							<option value="true" <?= $_SESSION["FILE_MANAGER"] == "true" ? "selected" : "" ?>>
-								<?= _("Yes") ?>
-							</option>
-						</select>
-					</div>
-					<div class="u-mb10">
 						<label for="v_web_terminal" class="form-label">
 							<?= _("Web Terminal") ?>
 						</label>

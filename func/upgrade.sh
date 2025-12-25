@@ -671,43 +671,6 @@ upgrade_phpmyadmin() {
 	fi
 }
 
-upgrade_filemanager() {
-	FILE_MANAGER_CHECK=$(cat $HESTIA/conf/hestia.conf | grep "FILE_MANAGER='false'")
-	if [ -z "$FILE_MANAGER_CHECK" ]; then
-		if [ -f "$HESTIA/web/fm/version" ]; then
-			fm_version=$(cat $HESTIA/web/fm/version)
-		else
-			fm_version="1.0.0"
-		fi
-		if ! version_ge "$fm_version" "$fm_v"; then
-			echo "[ ! ] Upgrading File Manager to version $fm_v..."
-			# Reinstall the File Manager
-			$BIN/v-delete-sys-filemanager quiet yes
-			$BIN/v-add-sys-filemanager quiet
-		else
-			echo "[ * ] File Manager is up to date ($fm_v)..."
-
-			if [ "$UPGRADE_UPDATE_FILEMANAGER_CONFIG" = "true" ]; then
-				if [ -e "$HESTIA/web/fm/configuration.php" ]; then
-					echo "[ ! ] Updating File Manager configuration..."
-					# Update configuration.php
-					cp -f $HESTIA_INSTALL_DIR/filemanager/filegator/configuration.php $HESTIA/web/fm/configuration.php
-
-					# Path to the file manager configuration file where the change will be made.
-					config_file="$HESTIA/web/fm/configuration.php"
-					app_name="File Manager - $APP_NAME"
-
-					# Sed replaces only the value after "File Manager -"
-					sed -i "s|\(\$dist_config\[\"frontend_config\"\]\[\"app_name\"\] = \"File Manager - \).*\";|\1${APP_NAME}\";|" "$config_file"
-
-					# Set environment variable for interface
-					$BIN/v-change-sys-config-value 'FILE_MANAGER' 'true'
-				fi
-			fi
-		fi
-	fi
-}
-
 upgrade_roundcube() {
 	if [ -n "$(echo "$WEBMAIL_SYSTEM" | grep -w 'roundcube')" ]; then
 		if [ -d "/usr/share/roundcube" ]; then

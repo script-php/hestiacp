@@ -25,7 +25,6 @@ All notable changes to this project will be documented in this file.
 - Fix editing Panel Cronjobs for hestiaweb (#4891)
 - Fix missing dependency proftpd-mod-crypto on Ubuntu (#4895)
 - Fix the way Hestia validates chain certificate (#4887)
-- Class change for latest version of file manager. (#4871)
 
 ## [1.9.3] - Service release
 
@@ -53,7 +52,6 @@ All notable changes to this project will be documented in this file.
 - Admin are unable to add access keys #4799 (#4810)
 - Make jail for work sftp by using the binary sftp-server (#4803)
 - Update v-add-mail-domain (#4868)
-- Change filegator pagination to remove unlimited and add bigger steps (#4869)
 
 ### Quick install apps
 

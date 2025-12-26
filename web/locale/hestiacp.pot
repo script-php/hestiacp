@@ -1202,7 +1202,6 @@ msgstr ""
 #: ../../web/templates/pages/edit_web.php:6
 #: ../../web/templates/pages/list_updates.php:6
 #: ../../web/templates/pages/edit_dns.php:6
-#: ../../web/templates/pages/list_terminal.php:6
 #: ../../web/templates/pages/list_webapps.php:6
 #: ../../web/templates/pages/add_web.php:6
 #: ../../web/templates/pages/add_access_key.php:6
@@ -3709,10 +3708,6 @@ msgstr ""
 msgid "File Manager"
 msgstr ""
 
-#: ../../web/templates/pages/edit_server.php:1488
-msgid "Web Terminal"
-msgstr ""
-
 #: ../../web/templates/pages/edit_server.php:1501
 msgid "Limit System Resources"
 msgstr ""
@@ -4959,11 +4954,6 @@ msgstr ""
 msgid "File manager"
 msgstr ""
 
-#: ../../web/templates/includes/panel.php:182
-#: ../../web/templates/includes/panel.php:184
-msgid "Web terminal"
-msgstr ""
-
 #: ../../web/templates/includes/panel.php:196
 #: ../../web/templates/includes/panel.php:198
 msgid "Server settings"
@@ -5098,6 +5088,4 @@ msgstr ""
 msgid "brute-force protection"
 msgstr ""
 
-#: ../../bin/v-list-sys-services:336
-msgid "web terminal backend"
-msgstr ""
+

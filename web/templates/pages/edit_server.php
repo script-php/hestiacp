@@ -1471,19 +1471,6 @@
 						</select>
 					</div>
 					<div class="u-mb10">
-						<label for="v_web_terminal" class="form-label">
-							<?= _("Web Terminal") ?>
-						</label>
-						<select class="form-select" name="v_web_terminal" id="v_web_terminal">
-							<option value="false">
-								<?= _("No") ?>
-							</option>
-							<option value="true" <?= $_SESSION["WEB_TERMINAL"] == "true" ? "selected" : "" ?>>
-								<?= _("Yes") ?>
-							</option>
-						</select>
-					</div>
-					<div class="u-mb10">
 						<label for="v_resources_limit" class="form-label">
 							<?= _("Limit System Resources") ?>
 						</label>

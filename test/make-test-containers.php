@@ -259,7 +259,7 @@ function getHestiaVersion($branch) {
 		$control_file = file_get_contents(SHARED_HOST_FOLDER . "/hestiacp/src/deb/hestia/control");
 	} else {
 		$control_file = file_get_contents(
-			"https://raw.githubusercontent.com/hestiacp/hestiacp/${branch}/src/deb/hestia/control",
+			"https://raw.githubusercontent.com/script-php/hestiacp/${branch}/src/deb/hestia/control",
 		);
 	}
 

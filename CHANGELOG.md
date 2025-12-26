@@ -60,7 +60,6 @@ All notable changes to this project will be documented in this file.
 ### Dependencies
 
 - Bump Roundcube version to 1.6.10 (#4813)
-- Bump Filegator to 7.13.0
 
 ## [1.9.2] - Service release
 
@@ -68,7 +67,6 @@ All notable changes to this project will be documented in this file.
 - PHP-FPM Include missing info (#4766)
 - Fix bug where PHPMyadmin / PHPPGadmin where named phpmyadmin in 1.9.0 if this is the case it will reset to phppgadmin (#4767)
 - Fix warning caused by some old jailed code left (#4751)
-- Fix issues with Filemanger (#4761)
 - Update <www.conf> (#4743)
 
 ## [1.9.1] - Service release

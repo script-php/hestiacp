@@ -199,9 +199,6 @@ shell_list() {
 	if [ -n "$DEMO_MODE" ]; then
 		echo "Demo Mode:                        $DEMO_MODE"
 	fi
-	if [ -n "$FILE_MANAGER" ]; then
-		echo "File Manager enabled:             $FILE_MANAGER"
-	fi
 	if [ -n "$API" ]; then
 		echo "API enabled:             $API"
 		echo "API allowed IP's:             $API_ALLOWED_IP"

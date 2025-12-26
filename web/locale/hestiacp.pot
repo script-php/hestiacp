@@ -3704,9 +3704,6 @@ msgstr ""
 msgid "Quick App Installer"
 msgstr ""
 
-#: ../../web/templates/pages/edit_server.php:1475
-msgid "File Manager"
-msgstr ""
 
 #: ../../web/templates/pages/edit_server.php:1501
 msgid "Limit System Resources"
@@ -4947,11 +4944,6 @@ msgstr ""
 #: ../../web/templates/includes/panel.php:113
 #: ../../web/templates/includes/panel.php:116
 msgid "Delete notification"
-msgstr ""
-
-#: ../../web/templates/includes/panel.php:168
-#: ../../web/templates/includes/panel.php:170
-msgid "File manager"
 msgstr ""
 
 #: ../../web/templates/includes/panel.php:196

@@ -43,7 +43,7 @@
 				foreach ($data as $key => $value) {
 				++$i;
 			?>
-			<div class="units-table-row js-unit" style="<?php if ($data[$key]['ID'] === 'filemanager.ssh.key') { echo 'display: none;'; } ?>">
+			<div class="units-table-row js-unit">
 				<div class="units-table-cell units-table-heading-cell u-text-bold">
 					<span class="u-hide-desktop"><?= _("SSH ID") ?>:</span>
 					<span class="u-text-break">

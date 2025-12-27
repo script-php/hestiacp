@@ -116,9 +116,7 @@ json_list() {
 			"WEB_RGROUPS": "'$WEB_RGROUPS'",
 			"WEB_SSL": "'$WEB_SSL'",
 			"WEB_SSL_PORT": "'$WEB_SSL_PORT'",
-			"WEB_SYSTEM": "'$WEB_SYSTEM'",
-			"WEB_TERMINAL": "'$WEB_TERMINAL'",
-			"WEB_TERMINAL_PORT": "'$WEB_TERMINAL_PORT'"
+			"WEB_SYSTEM": "'$WEB_SYSTEM'"
 		}
 	}'
 }
@@ -200,9 +198,6 @@ shell_list() {
 	echo "Version:                          $VERSION"
 	if [ -n "$DEMO_MODE" ]; then
 		echo "Demo Mode:                        $DEMO_MODE"
-	fi
-	if [ -n "$FILE_MANAGER" ]; then
-		echo "File Manager enabled:             $FILE_MANAGER"
 	fi
 	if [ -n "$API" ]; then
 		echo "API enabled:             $API"

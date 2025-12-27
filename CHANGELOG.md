@@ -25,7 +25,6 @@ All notable changes to this project will be documented in this file.
 - Fix editing Panel Cronjobs for hestiaweb (#4891)
 - Fix missing dependency proftpd-mod-crypto on Ubuntu (#4895)
 - Fix the way Hestia validates chain certificate (#4887)
-- Class change for latest version of file manager. (#4871)
 
 ## [1.9.3] - Service release
 
@@ -53,7 +52,6 @@ All notable changes to this project will be documented in this file.
 - Admin are unable to add access keys #4799 (#4810)
 - Make jail for work sftp by using the binary sftp-server (#4803)
 - Update v-add-mail-domain (#4868)
-- Change filegator pagination to remove unlimited and add bigger steps (#4869)
 
 ### Quick install apps
 
@@ -62,7 +60,6 @@ All notable changes to this project will be documented in this file.
 ### Dependencies
 
 - Bump Roundcube version to 1.6.10 (#4813)
-- Bump Filegator to 7.13.0
 
 ## [1.9.2] - Service release
 
@@ -70,7 +67,6 @@ All notable changes to this project will be documented in this file.
 - PHP-FPM Include missing info (#4766)
 - Fix bug where PHPMyadmin / PHPPGadmin where named phpmyadmin in 1.9.0 if this is the case it will reset to phppgadmin (#4767)
 - Fix warning caused by some old jailed code left (#4751)
-- Fix issues with Filemanger (#4761)
 - Update <www.conf> (#4743)
 
 ## [1.9.1] - Service release

@@ -54,10 +54,6 @@
 			<div class="units-table-cell"><?= _("Package") ?></div>
 			<div class="units-table-cell"></div>
 			<div class="units-table-cell u-text-center">
-				<i class="fas fa-terminal" title="<?= _("Shell") ?>"></i>
-				<span class="u-hidden-visually"><?= _("Shell") ?></span>
-			</div>
-			<div class="units-table-cell u-text-center">
 				<i class="fas fa-hard-drive" title="<?= _("Quota") ?>"></i>
 				<span class="u-hidden-visually"><?= _("Quota") ?></span>
 			</div>

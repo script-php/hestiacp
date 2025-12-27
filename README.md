@@ -1,6 +1,14 @@
-## **Welcome!**
+## **Welcome to EasyCP!**
 
-Hestia Control Panel is designed to provide administrators an easy to use web and command line interface, enabling them to quickly deploy and manage web domains, mail accounts, DNS zones, and databases from one central dashboard without the hassle of manually deploying and configuring individual components or services.
+EasyCP is a simplified hosting control panel built on top of HestiaCP, designed to provide administrators an easy to use web and command line interface, enabling them to quickly deploy and manage web domains, mail accounts, DNS zones, and databases from one central dashboard without the hassle of manually deploying and configuring individual components or services.
+
+### Why EasyCP?
+
+EasyCP was created to address specific needs of hosting administrators:
+
+1. **Simplified Codebase** - We streamlined HestiaCP by removing unnecessary components (like the built-in file manager) to reduce complexity and potential security vulnerabilities from third-party dependencies.
+
+2. **Controlled Updates** - Unlike HestiaCP which auto-updates via the apt repository, EasyCP provides **manual control** over panel updates. Updates are managed directly through the panel's "Updates" section, giving you full control over when your panel is upgraded and preventing unexpected changes to your system.
 
 ## Features and Services
 
@@ -14,17 +22,16 @@ Hestia Control Panel is designed to provide administrators an easy to use web an
 
 ## Supported platforms and operating systems
 
-- **Debian:** 12, 11
-- **Ubuntu:** 24.04 LTS, 22.04 LTS, 20.04 LTS
+- **Ubuntu:** 24.04 LTS, 22.04 LTS
 
 **NOTES:**
 
-- Hestia Control Panel does not support 32 bit operating systems!
-- Hestia Control Panel in combination with OpenVZ 7 or lower might have issues with DNS and/or firewall. If you use a Virtual Private Server we strongly advice you to use something based on KVM or LXC!
+- EasyCP does not support 32 bit operating systems!
+- EasyCP in combination with OpenVZ 7 or lower might have issues with DNS and/or firewall. If you use a Virtual Private Server we strongly advice you to use something based on KVM or LXC!
 
-## Installing Hestia Control Panel
+## Installing EasyCP
 
-- **NOTE:** You must install Hestia Control Panel on top of a fresh operating system installation to ensure proper functionality.
+- **NOTE:** You must install EasyCP on top of a fresh operating system installation to ensure proper functionality.
 
 While we have taken every effort to make the installation process and the control panel interface as friendly as possible (even for new users), it is assumed that you will have some prior knowledge and understanding in the basics how to set up a Linux server before continuing.
 
@@ -72,12 +79,14 @@ Alternatively, You can use <https://hestiacp.com/install.html> which allows you 
 
 ## How to upgrade an existing installation
 
-Automatic Updates are enabled by default on new installations of Hestia Control Panel and can be managed from **Server Settings > Updates**. To manually check for and install available updates, use the apt package manager:
+EasyCP does not use automatic updates via the apt repository. Instead, updates are managed directly through the panel:
 
-```bash
-apt-get update
-apt-get upgrade
-```
+1. Log in to your EasyCP control panel
+2. Navigate to **Server Settings > Updates**
+3. Check for available updates
+4. Click the update button to upgrade when you're ready
+
+This approach gives you full control over when your panel is updated, allowing you to schedule upgrades at convenient times without unexpected automatic changes to your system.
 
 ## Issues & Support Requests
 
@@ -92,18 +101,12 @@ If you would like to contribute to the project, please [read our Contribution Gu
 
 ## Copyright
 
-"Hestia Control Panel", "HestiaCP", and the Hestia logo are original copyright of hestiacp.com and the following restrictions apply:
+"EasyCP" is a simplified derivative of "Hestia Control Panel". 
 
-**You are allowed to:**
+EasyCP maintains compatibility with Hestia Control Panel's GPL v3 license while providing additional simplifications and features tailored for administrators who prefer manual control over their panel updates.
 
-- use the names "Hestia Control Panel", "HestiaCP", or the Hestia logo in any context directly related to the application or the project. This includes the application itself, local communities and news or blog posts.
-
-**You are not allowed to:**
-
-- sell or redistribute the application under the name "Hestia Control Panel", "HestiaCP", or similar derivatives, including the use of the Hestia logo in any brand or marketing materials related to revenue generating activities,
-- use the names "Hestia Control Panel", "HestiaCP", or the Hestia logo in any context that is not related to the project,
-- alter the name "Hestia Control Panel", "HestiaCP", or the Hestia logo in any way.
+For more information about the original Hestia Control Panel, visit [hestiacp.com](https://hestiacp.com/).
 
 ## License
 
-Hestia Control Panel is licensed under [GPL v3](https://github.com/script-php/hestiacp/blob/release/LICENSE) license, and is based on the [VestaCP](https://vestacp.com/) project.<br>
+EasyCP is licensed under [GPL v3](https://github.com/script-php/hestiacp/blob/release/LICENSE) license, and is based on the [Hestia Control Panel](https://hestiacp.com/) project.

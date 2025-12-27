@@ -74,9 +74,6 @@ upgrade_rebuild_mail_templates | tee -a $LOG
 # Update DNS zone templates
 upgrade_rebuild_dns_templates | tee -a $LOG
 
-# Upgrade File Manager and update configuration
-upgrade_filemanager | tee -a $LOG
-
 # Upgrade SnappyMail if applicable
 upgrade_snappymail | tee -a $LOG
 

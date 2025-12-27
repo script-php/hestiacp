@@ -81,13 +81,12 @@ get_branch_file() {
 
 usage() {
 	echo "Usage:"
-	echo "    $0 (--all|--hestia|--nginx|--php|--web-terminal) [options]"
+	echo "    $0 (--all|--hestia|--nginx|--php) [options]"
 	echo ""
 	echo "    --all           Build all hestia packages."
 	echo "    --hestia        Build only the Control Panel package."
 	echo "    --nginx         Build only the backend nginx engine package."
 	echo "    --php           Build only the backend php engine package"
-	echo "    --web-terminal  Build only the backend web terminal websocket package"
 	echo "  Options:"
 	echo "    --install       Install generated packages"
 	echo "    --keepbuild     Don't delete downloaded source and build folders"
@@ -118,7 +117,6 @@ for i in $*; do
 		--all)
 			NGINX_B='true'
 			PHP_B='true'
-			WEB_TERMINAL_B='true'
 			HESTIA_B='true'
 			;;
 		--nginx)
@@ -126,9 +124,6 @@ for i in $*; do
 			;;
 		--php)
 			PHP_B='true'
-			;;
-		--web-terminal)
-			WEB_TERMINAL_B='true'
 			;;
 		--hestia)
 			HESTIA_B='true'
@@ -183,7 +178,6 @@ if [ -f "$SRC_DIR/src/deb/hestia/control" ]; then
 	BUILD_VER=$(cat $SRC_DIR/src/deb/hestia/control | grep "Version:" | cut -d' ' -f2)
 	NGINX_V=$(cat $SRC_DIR/src/deb/nginx/control | grep "Version:" | cut -d' ' -f2)
 	PHP_V=$(cat $SRC_DIR/src/deb/php/control | grep "Version:" | cut -d' ' -f2)
-	WEB_TERMINAL_V=$(cat $SRC_DIR/src/deb/web-terminal/control | grep "Version:" | cut -d' ' -f2)
 else
 	echo "Error: Cannot find control files in $SRC_DIR/src/deb/"
 	exit 1
@@ -194,7 +188,7 @@ if [ -z "$BUILD_VER" ]; then
 	exit 1
 fi
 
-echo "Build version $BUILD_VER, with Nginx version $NGINX_V, PHP version $PHP_V and Web Terminal version $WEB_TERMINAL_V"
+echo "Build version $BUILD_VER, with Nginx version $NGINX_V, PHP version $PHP_V for $BUILD_ARCH architecture"
 echo "Using local source from: $SRC_DIR"
 
 HESTIA_V="${BUILD_VER}_${BUILD_ARCH}"
@@ -262,7 +256,6 @@ if [ "$HESTIA_DEBUG" ]; then
 	echo "Hestia version   : $BUILD_VER"
 	echo "Nginx version    : $NGINX_V"
 	echo "PHP version      : $PHP_V"
-	echo "Web Term version : $WEB_TERMINAL_V"
 	echo "Architecture     : $BUILD_ARCH"
 	echo "Debug mode       : $HESTIA_DEBUG"
 	echo "Source directory : $SRC_DIR"
@@ -294,7 +287,7 @@ fi
 if [ "$NGINX_B" = true ]; then
 	echo "Building hestia-nginx package..."
 	if [ "$CROSS" = "true" ]; then
-		echo "Cross compile not supported for hestia-nginx, hestia-php or hestia-web-terminal"
+		echo "Cross compile not supported for hestia-nginx or hestia-php packages yet."
 		exit 1
 	fi
 
@@ -422,7 +415,7 @@ fi
 
 if [ "$PHP_B" = true ]; then
 	if [ "$CROSS" = "true" ]; then
-		echo "Cross compile not supported for hestia-nginx, hestia-php or hestia-web-terminal"
+		echo "Cross compile not supported for hestia-nginx or hestia-php packages yet."
 		exit 1
 	fi
 
@@ -533,75 +526,6 @@ if [ "$PHP_B" = true ]; then
 		if [ "$KEEPBUILD" != 'true' ]; then
 			rm -r $BUILD_DIR/php-$(echo $PHP_V | cut -d"~" -f1)
 			rm -r $BUILD_DIR_HESTIAPHP
-			if [ -d $BUILD_DIR/hestiacp-src ]; then
-				rm -r $BUILD_DIR/hestiacp-src
-			fi
-		fi
-	fi
-fi
-
-#################################################################################
-#
-# Building hestia-web-terminal
-#
-#################################################################################
-
-if [ "$WEB_TERMINAL_B" = true ]; then
-	if [ "$CROSS" = "true" ]; then
-		echo "Cross compile not supported for hestia-nginx, hestia-php or hestia-web-terminal"
-		exit 1
-	fi
-
-	echo "Building hestia-web-terminal package..."
-
-	if [ "$BUILD_DEB" = true ]; then
-		BUILD_DIR_HESTIA_TERMINAL=$BUILD_DIR/hestia-web-terminal_$WEB_TERMINAL_V
-
-		# Check if target directory exist
-		if [ -d $BUILD_DIR_HESTIA_TERMINAL ]; then
-			rm -r $BUILD_DIR_HESTIA_TERMINAL
-		fi
-
-		# Create directory
-		mkdir -p $BUILD_DIR_HESTIA_TERMINAL
-		chown -R root:root $BUILD_DIR_HESTIA_TERMINAL
-
-		# Get Debian package files
-		[ "$HESTIA_DEBUG" ] && echo DEBUG: mkdir -p $BUILD_DIR_HESTIA_TERMINAL/DEBIAN
-		mkdir -p $BUILD_DIR_HESTIA_TERMINAL/DEBIAN
-		get_branch_file 'src/deb/web-terminal/control' "$BUILD_DIR_HESTIA_TERMINAL/DEBIAN/control"
-		if [ "$BUILD_ARCH" != "amd64" ]; then
-			sed -i "s/amd64/${BUILD_ARCH}/g" "$BUILD_DIR_HESTIA_TERMINAL/DEBIAN/control"
-		fi
-
-		get_branch_file 'src/deb/web-terminal/copyright' "$BUILD_DIR_HESTIA_TERMINAL/DEBIAN/copyright"
-		get_branch_file 'src/deb/web-terminal/postinst' "$BUILD_DIR_HESTIA_TERMINAL/DEBIAN/postinst"
-		chmod +x $BUILD_DIR_HESTIA_TERMINAL/DEBIAN/postinst
-
-		# Get server files
-		[ "$HESTIA_DEBUG" ] && echo DEBUG: mkdir -p "${BUILD_DIR_HESTIA_TERMINAL}/usr/local/hestia/web-terminal"
-		mkdir -p "${BUILD_DIR_HESTIA_TERMINAL}/usr/local/hestia/web-terminal"
-		get_branch_file 'src/deb/web-terminal/package.json' "${BUILD_DIR_HESTIA_TERMINAL}/usr/local/hestia/web-terminal/package.json"
-		get_branch_file 'src/deb/web-terminal/package-lock.json' "${BUILD_DIR_HESTIA_TERMINAL}/usr/local/hestia/web-terminal/package-lock.json"
-		get_branch_file 'src/deb/web-terminal/server.js' "${BUILD_DIR_HESTIA_TERMINAL}/usr/local/hestia/web-terminal/server.js"
-		chmod +x "${BUILD_DIR_HESTIA_TERMINAL}/usr/local/hestia/web-terminal/server.js"
-
-		cd $BUILD_DIR_HESTIA_TERMINAL/usr/local/hestia/web-terminal
-		npm ci --omit=dev
-
-		# Systemd service
-		[ "$HESTIA_DEBUG" ] && echo DEBUG: mkdir -p $BUILD_DIR_HESTIA_TERMINAL/etc/systemd/system
-		mkdir -p $BUILD_DIR_HESTIA_TERMINAL/etc/systemd/system
-		get_branch_file 'src/deb/web-terminal/hestia-web-terminal.service' "$BUILD_DIR_HESTIA_TERMINAL/etc/systemd/system/hestia-web-terminal.service"
-
-		# Build the package
-		echo Building Web Terminal DEB
-		[ "$HESTIA_DEBUG" ] && echo DEBUG: dpkg-deb -Zxz --build $BUILD_DIR_HESTIA_TERMINAL $DEB_DIR
-		dpkg-deb -Zxz --build $BUILD_DIR_HESTIA_TERMINAL $DEB_DIR
-
-		# clear up the source folder
-		if [ "$KEEPBUILD" != 'true' ]; then
-			rm -r $BUILD_DIR_HESTIA_TERMINAL
 			if [ -d $BUILD_DIR/hestiacp-src ]; then
 				rm -r $BUILD_DIR/hestiacp-src
 			fi

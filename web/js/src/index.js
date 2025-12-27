@@ -27,7 +27,6 @@ import handleTabPanels from './tabPanels';
 import handleToggleAdvanced from './toggleAdvanced';
 import handleUnlimitedInput from './unlimitedInput';
 import initRrdCharts from './rrdCharts';
-import initWebTerminal from './webTerminal';
 
 initListeners();
 focusFirstInput();
@@ -54,7 +53,6 @@ function initListeners() {
 	handleTabPanels();
 	handleToggleAdvanced();
 	initRrdCharts();
-	initWebTerminal();
 }
 
 document.addEventListener('alpine:init', () => {

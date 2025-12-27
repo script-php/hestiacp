@@ -49,15 +49,12 @@ fpm_v="8.3"
 # MariaDB version
 mariadb_v="11.4"
 
-# Node.js version
-node_v="20"
-
 # Software packages to install
 software="acl apache2 apache2.2-common apache2-suexec-custom apache2-utils apparmor-utils at awstats bc bind9 bsdmainutils bsdutils
   clamav-daemon cron curl dnsutils dovecot-imapd dovecot-managesieved dovecot-pop3d dovecot-sieve e2fslibs e2fsprogs
   exim4 exim4-daemon-heavy expect fail2ban flex ftp git
   idn2 imagemagick ipset jq libapache2-mod-fcgid libapache2-mod-php$fpm_v libapache2-mod-rpaf libonig5 libzip4 lsb-release
-  lsof mariadb-client mariadb-common mariadb-server mc mysql-client mysql-common mysql-server nginx nodejs openssh-server
+  lsof mariadb-client mariadb-common mariadb-server mc mysql-client mysql-common mysql-server nginx openssh-server
   php$fpm_v php$fpm_v-apcu php$fpm_v-bz2 php$fpm_v-cgi php$fpm_v-cli php$fpm_v-common php$fpm_v-curl php$fpm_v-gd
   php$fpm_v-imagick php$fpm_v-imap php$fpm_v-intl php$fpm_v-ldap php$fpm_v-mbstring php$fpm_v-mysql php$fpm_v-opcache
   php$fpm_v-pgsql php$fpm_v-pspell php$fpm_v-readline php$fpm_v-xml php$fpm_v-zip postgresql postgresql-contrib
@@ -88,7 +85,6 @@ help() {
   -b, --fail2ban          Install Fail2Ban      [yes|no]  default: yes
   -q, --quota             Filesystem Quota      [yes|no]  default: no
   -L, --resourcelimit     Resource Limitation   [yes|no]  default: no
-  -W, --webterminal       Web Terminal          [yes|no]  default: no
   -d, --api               Activate API          [yes|no]  default: yes
   -r, --port              Change Backend Port             default: 8083
   -l, --lang              Default language                default: en
@@ -329,7 +325,6 @@ for arg; do
 		--multiphp) args="${args}-o " ;;
 		--quota) args="${args}-q " ;;
 		--resourcelimit) args="${args}-L " ;;
-		--webterminal) args="${args}-W " ;;
 		--port) args="${args}-r " ;;
 		--lang) args="${args}-l " ;;
 		--interactive) args="${args}-y " ;;
@@ -370,7 +365,6 @@ while getopts "a:w:v:j:k:m:M:g:d:x:z:Z:c:t:i:b:r:o:q:L:l:y:s:u:e:p:W:D:fh" Optio
 		b) fail2ban=$OPTARG ;;      # Fail2ban
 		q) quota=$OPTARG ;;         # FS Quota
 		L) resourcelimit=$OPTARG ;; # Resource Limitation
-		W) webterminal=$OPTARG ;;   # Web Terminal
 		r) port=$OPTARG ;;          # Backend Port
 		l) lang=$OPTARG ;;          # Language
 		d) api=$OPTARG ;;           # Activate API
@@ -451,7 +445,6 @@ set_default_value 'iptables' 'yes'
 set_default_value 'fail2ban' 'yes'
 set_default_value 'quota' 'no'
 set_default_value 'resourcelimit' 'no'
-set_default_value 'webterminal' 'no'
 set_default_value 'interactive' 'yes'
 set_default_value 'api' 'yes'
 set_default_port '8083'
@@ -585,15 +578,13 @@ fi
 
 # Validate whether installation script matches release version before continuing with install
 if [ -z "$withdebs" ] || [ ! -d "$withdebs" ]; then
-	release_branch_ver=$(curl -s https://raw.githubusercontent.com/hestiacp/hestiacp/release/src/deb/hestia/control | grep "Version:" | awk '{print $2}')
+	release_branch_ver=$(curl -s https://raw.githubusercontent.com/script-php/hestiacp/release/src/deb/hestia/control | grep "Version:" | awk '{print $2}')
 	if [ "$HESTIA_INSTALL_VER" != "$release_branch_ver" ]; then
 		echo
 		echo -e "\e[91mInstallation aborted\e[0m"
 		echo "===================================================================="
 		echo -e "\e[33mERROR: Install script version does not match package version!\e[0m"
 		echo -e "\e[33mPlease download the installer from the release branch in order to continue:\e[0m"
-		echo ""
-		echo -e "\e[33mhttps://raw.githubusercontent.com/hestiacp/hestiacp/release/install/hst-install.sh\e[0m"
 		echo ""
 		echo -e "\e[33mTo test pre-release versions, build the .deb packages and re-run the installer:\e[0m"
 		echo -e "  \e[33m./hst_autocompile.sh \e[1m--hestia branchname no\e[21m\e[0m"
@@ -616,8 +607,6 @@ case $architecture in
 		echo "===================================================================="
 		echo -e "\e[33mERROR: $architecture is currently not supported!\e[0m"
 		echo -e "\e[33mPlease verify the achitecture used is currenlty supported\e[0m"
-		echo ""
-		echo -e "\e[33mhttps://github.com/hestiacp/hestiacp/blob/main/README.md\e[0m"
 		echo ""
 		check_result 1 "Installation aborted"
 		;;
@@ -726,9 +715,6 @@ if [ "$proftpd" = 'yes' ]; then
 	echo '   - ProFTPD FTP Server'
 fi
 
-if [ "$webterminal" = 'yes' ]; then
-	echo '   - Web terminal'
-fi
 
 # Firewall stack
 if [ "$iptables" = 'yes' ]; then
@@ -906,14 +892,6 @@ fi
 # gpg --no-default-keyring --keyring /usr/share/keyrings/hestia-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys A189E93654F0B0E5 > /dev/null 2>&1
 
 
-
-# Installing Node.js repo
-if [ "$webterminal" = 'yes' ]; then
-	echo "[ * ] Node.js $node_v"
-	echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/nodejs.gpg] https://deb.nodesource.com/node_$node_v.x nodistro main" > $apt/nodejs.list
-	curl -s https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor | tee /usr/share/keyrings/nodejs.gpg > /dev/null 2>&1
-	apt-get -y install nodejs >> $LOG
-fi
 
 # Installing PostgreSQL repo
 if [ "$postgresql" = 'yes' ]; then
@@ -1109,10 +1087,6 @@ if [ "$iptables" = 'no' ]; then
 	software=$(echo "$software" | sed -e "s/ipset//")
 	software=$(echo "$software" | sed -e "s/fail2ban//")
 fi
-if [ "$webterminal" = 'no' ]; then
-	software=$(echo "$software" | sed -e "s/nodejs//")
-	software=$(echo "$software" | sed -e "s/hestia-web-terminal//")
-fi
 if [ "$phpfpm" = 'yes' ]; then
 	software=$(echo "$software" | sed -e "s/php$fpm_v-cgi//")
 	software=$(echo "$software" | sed -e "s/libapache2-mod-ruid2//")
@@ -1121,7 +1095,6 @@ fi
 if [ -d "$withdebs" ]; then
 	software=$(echo "$software" | sed -e "s/hestia-nginx//")
 	software=$(echo "$software" | sed -e "s/hestia-php//")
-	software=$(echo "$software" | sed -e "s/hestia-web-terminal//")
 	software=$(echo "$software" | sed -e "s/hestia=${HESTIA_INSTALL_VER}//")
 fi
 if [ "$release" = '20.04' ]; then
@@ -1487,7 +1460,6 @@ else
 	write_config_value "RESOURCES_LIMIT" "no"
 fi
 
-write_config_value "WEB_TERMINAL_PORT" "8085"
 
 # Backups
 write_config_value "BACKUP_SYSTEM" "local"
@@ -2312,27 +2284,6 @@ else
 fi
 
 #----------------------------------------------------------#
-#                  Configure File Manager                  #
-#----------------------------------------------------------#
-
-echo "[ * ] Configuring File Manager..."
-$HESTIA/bin/v-add-sys-filemanager quiet
-
-#----------------------------------------------------------#
-#              Configure Web terminal                      #
-#----------------------------------------------------------#
-
-# Web terminal
-if [ "$webterminal" = 'yes' ]; then
-	write_config_value "WEB_TERMINAL" "true"
-	systemctl daemon-reload > /dev/null 2>&1
-	systemctl enable hestia-web-terminal > /dev/null 2>&1
-	systemctl restart hestia-web-terminal > /dev/null 2>&1
-else
-	write_config_value "WEB_TERMINAL" "false"
-fi
-
-#----------------------------------------------------------#
 #                  Configure dependencies                  #
 #----------------------------------------------------------#
 
@@ -2550,7 +2501,7 @@ cat $tmpfile
 rm -f $tmpfile
 
 # Add welcome message to notification panel
-$HESTIA/bin/v-add-user-notification "$username" 'Welcome to Hestia Control Panel!' '<p>You are now ready to begin adding <a href="/add/user/">user accounts</a> and <a href="/add/web/">domains</a>. For help and assistance, <a href="https://hestiacp.com/docs/" target="_blank">view the documentation</a> or <a href="https://forum.hestiacp.com/" target="_blank">visit our forum</a>.</p><p>Please <a href="https://github.com/hestiacp/hestiacp/issues" target="_blank">report any issues via GitHub</a>.</p><p class="u-text-bold">Have a wonderful day!</p><p><i class="fas fa-heart icon-red"></i> The Hestia Control Panel development team</p>'
+$HESTIA/bin/v-add-user-notification "$username" 'Welcome to Hestia Control Panel!' '<p>You are now ready to begin adding <a href="/add/user/">user accounts</a> and <a href="/add/web/">domains</a>. For help and assistance, <a href="https://hestiacp.com/docs/" target="_blank">view the documentation</a> or <a href="https://forum.hestiacp.com/" target="_blank">visit our forum</a>.</p><p>Please <a href="https://github.com/script-php/hestiacp/issues" target="_blank">report any issues via GitHub</a>.</p><p class="u-text-bold">Have a wonderful day!</p><p><i class="fas fa-heart icon-red"></i> The Hestia Control Panel development team</p>'
 
 # Clean-up
 # Sort final configuration file

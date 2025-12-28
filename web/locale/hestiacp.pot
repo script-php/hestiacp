@@ -1006,21 +1006,6 @@ msgstr ""
 msgid "Database {%s} has been created successfully. / {Open %s}"
 msgstr ""
 
-#: ../../web/add/webapp/index.php:58
-#, php-format
-msgid "Unable to install %s, %s is not available."
-msgstr ""
-
-#: ../../web/add/webapp/index.php:73
-#, php-format
-msgid "%s installer missing."
-msgstr ""
-
-#: ../../web/add/webapp/index.php:91
-#, php-format
-msgid "%s installed successfully."
-msgstr ""
-
 #: ../../web/add/key/index.php:17 ../../web/templates/pages/list_key.php:37
 #: ../../web/templates/pages/list_key.php:74
 #: ../../web/templates/pages/add_key.php:34
@@ -1202,7 +1187,6 @@ msgstr ""
 #: ../../web/templates/pages/edit_web.php:6
 #: ../../web/templates/pages/list_updates.php:6
 #: ../../web/templates/pages/edit_dns.php:6
-#: ../../web/templates/pages/list_webapps.php:6
 #: ../../web/templates/pages/add_web.php:6
 #: ../../web/templates/pages/add_access_key.php:6
 #: ../../web/templates/pages/edit_server_httpd.php:6
@@ -1237,7 +1221,6 @@ msgstr ""
 #: ../../web/templates/pages/add_key.php:7
 #: ../../web/templates/pages/add_key.php:11
 #: ../../web/templates/pages/add_db.php:6
-#: ../../web/templates/pages/setup_webapp.php:6
 #: ../../web/templates/pages/add_ip.php:6
 #: ../../web/templates/pages/list_log_auth.php:7
 #: ../../web/templates/pages/list_log_auth.php:11
@@ -1296,7 +1279,6 @@ msgstr ""
 #: ../../web/templates/pages/edit_mail_acc.php:11
 #: ../../web/templates/pages/add_key.php:17
 #: ../../web/templates/pages/add_db.php:12
-#: ../../web/templates/pages/setup_webapp.php:11
 #: ../../web/templates/pages/add_ip.php:11
 #: ../../web/templates/pages/add_mail.php:12
 #: ../../web/templates/pages/edit_package.php:11
@@ -1335,7 +1317,6 @@ msgstr ""
 #: ../../web/templates/pages/add_cron.php:373
 #: ../../web/templates/pages/edit_mail_acc.php:46
 #: ../../web/templates/pages/add_db.php:80
-#: ../../web/templates/pages/setup_webapp.php:63
 #: ../../web/templates/pages/edit_cron.php:90
 #: ../../web/templates/pages/edit_cron.php:120
 #: ../../web/templates/pages/edit_cron.php:189
@@ -2242,11 +2223,6 @@ msgstr ""
 msgid "Purge NGINX Cache"
 msgstr ""
 
-#: ../../web/templates/pages/edit_web.php:15
-#: ../../web/templates/pages/list_webapps.php:16
-msgid "Quick Install App"
-msgstr ""
-
 #: ../../web/templates/pages/edit_web.php:49
 msgid "Edit Web Domain"
 msgstr ""
@@ -2493,7 +2469,6 @@ msgstr ""
 
 #: ../../web/templates/pages/list_updates.php:35
 #: ../../web/templates/pages/list_updates.php:62
-#: ../../web/templates/pages/list_webapps.php:27
 #: ../../web/templates/pages/edit_server.php:152
 msgid "Version"
 msgstr ""
@@ -2677,10 +2652,6 @@ msgid "%d DNS zone"
 msgid_plural "%d DNS zones"
 msgstr[0] ""
 msgstr[1] ""
-
-#: ../../web/templates/pages/list_webapps.php:29
-msgid "Setup"
-msgstr ""
 
 #: ../../web/templates/pages/add_web.php:27
 #: ../../web/templates/pages/list_web.php:7
@@ -4346,26 +4317,6 @@ msgid_plural "%d user accounts"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../../web/templates/pages/setup_webapp.php:27
-#, php-format
-msgid "Install %s"
-msgstr ""
-
-#: ../../web/templates/pages/setup_webapp.php:33
-msgid "Data Loss Warning!"
-msgstr ""
-
-#: ../../web/templates/pages/setup_webapp.php:34
-msgid ""
-"Your web folder already has files uploaded to it. The installer will "
-"overwrite your files and/or the installation might fail."
-msgstr ""
-
-#: ../../web/templates/pages/setup_webapp.php:35
-#, php-format
-msgid "Please make sure ~/web/%s/public_html is empty!"
-msgstr ""
-
 #: ../../web/templates/pages/add_ip.php:57
 #: ../../web/templates/pages/edit_ip.php:50
 msgid "Shared"
@@ -5002,10 +4953,6 @@ msgstr ""
 
 #: ../../web/src/app/System/HestiaApp.php:218
 msgid "Unable to add database!"
-msgstr ""
-
-#: ../../web/src/app/WebApp/AppWizard.php:113
-msgid "Unable to add database! Limit reached!"
 msgstr ""
 
 #: ../../web/delete/web/cache/index.php:20

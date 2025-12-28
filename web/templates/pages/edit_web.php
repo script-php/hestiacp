@@ -10,11 +10,8 @@
 			<a href="/delete/web/cache/?domain=<?= htmlentities($v_domain);?>&token=<?= $_SESSION['token'];?>" class="button button-secondary js-clear-cache-button <?php if (!($v_nginx_cache == 'yes' || (($v_proxy_template == 'caching' || is_int(strpos($v_proxy_template, 'caching-'))) && $_SESSION['PROXY_SYSTEM'] == 'nginx'))) { echo "u-hidden"; } ?>">
 				<i class="fas fa-trash icon-red"></i><?= _("Purge NGINX Cache") ?>
 			</a>
-			<?php if ($_SESSION["PLUGIN_APP_INSTALLER"] !== "false") { ?>
-				<a href="/add/webapp/?domain=<?= htmlentities($v_domain) ?>" class="button button-secondary">
-					<i class="fas fa-magic icon-blue"></i><?= _("Quick Install App") ?>
-				</a>
-			<?php } ?>
+
+			
 			<button type="submit" class="button" form="main-form">
 				<i class="fas fa-floppy-disk icon-purple"></i><?= _("Save") ?>
 			</button>

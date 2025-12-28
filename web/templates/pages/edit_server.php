@@ -1457,19 +1457,7 @@
 					<i class="fas fa-puzzle-piece u-mr10"></i><?= _("Plugins") ?>
 				</summary>
 				<div class="box-collapse-content">
-					<div class="u-mb10">
-						<label for="v_plugin_app_installer" class="form-label">
-							<?= _("Quick App Installer") ?>
-						</label>
-						<select class="form-select" name="v_plugin_app_installer" id="v_plugin_app_installer">
-							<option value="false">
-								<?= _("No") ?>
-							</option>
-							<option value="true" <?= $_SESSION["PLUGIN_APP_INSTALLER"] == "true" ? "selected" : "" ?>>
-								<?= _("Yes") ?>
-							</option>
-						</select>
-					</div>
+					
 					<div class="u-mb10">
 						<label for="v_resources_limit" class="form-label">
 							<?= _("Limit System Resources") ?>

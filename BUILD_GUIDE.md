@@ -9,7 +9,6 @@ Automate building Hestia packages across multiple Ubuntu versions (Focal, Jammy,
 - Repository cloned to `~/projects/hestiacp`
 - `hestiacp-debs` folder in the repository root
 
-## Quick Start
 
 ### Build a single distribution
 ```bash

@@ -3671,11 +3671,6 @@ msgstr ""
 msgid "Plugins"
 msgstr ""
 
-#: ../../web/templates/pages/edit_server.php:1462
-msgid "Quick App Installer"
-msgstr ""
-
-
 #: ../../web/templates/pages/edit_server.php:1501
 msgid "Limit System Resources"
 msgstr ""

@@ -53,9 +53,6 @@ All notable changes to this project will be documented in this file.
 - Make jail for work sftp by using the binary sftp-server (#4803)
 - Update v-add-mail-domain (#4868)
 
-### Quick install apps
-
-- Enable PHP8.4 support for Laravel and Symfony (#4820, #4821)
 
 ### Dependencies
 

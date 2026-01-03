@@ -1,0 +1,365 @@
+================================================================================
+          HESTIACP LOGIN SYSTEM - ANALYSIS & DOCUMENTATION
+================================================================================
+
+TASK COMPLETED SUCCESSFULLY ✓
+
+The HestiaCP login system has been thoroughly analyzed and documented to help
+you understand how it works for rewriting the project from scratch.
+
+================================================================================
+                        DOCUMENTATION FILES CREATED
+================================================================================
+
+📘 START HERE: LOGIN_DOCUMENTATION_README.md
+   - Navigation guide for all documentation
+   - Quick links to specific topics
+   - Common questions answered
+
+📗 QUICK INTRO: LOGIN_SIMPLE_OVERVIEW.md (400 lines)
+   - 5-10 minute read
+   - Simple architecture diagrams
+   - Login flow explained step-by-step
+   - Key concepts and security features
+   - Perfect for getting started
+
+📙 CODE REFERENCE: LOGIN_QUICK_REFERENCE.md (533 lines)
+   - 18+ copy-paste code snippets
+   - Session management examples
+   - Security implementation patterns
+   - Testing checklists
+   - File structure recommendations
+
+📕 COMPLETE ANALYSIS: LOGIN_SYSTEM_ANALYSIS.md (767 lines)
+   - Deep dive into architecture
+   - Complete authentication flow
+   - All security features explained
+   - Password hashing methods
+   - User roles and permissions
+   - Recommendations for rewriting
+
+Total: 1,955 lines of comprehensive documentation
+
+================================================================================
+                           WHAT WAS ANALYZED
+================================================================================
+
+FRONTEND (PHP):
+---------------
+✓ /web/login/index.php          - Main login controller (470 lines)
+✓ /web/logout/index.php          - Logout handler
+✓ /web/inc/main.php             - Session management
+✓ /web/inc/prevent_csrf.php     - CSRF protection
+✓ /web/inc/secure_login.php     - Secret URL feature
+✓ /web/templates/pages/login/   - Login form templates
+
+BACKEND (Bash Scripts):
+-----------------------
+✓ /bin/v-get-user-salt          - Get password salt & method
+✓ /bin/v-check-user-hash        - Verify password hash
+✓ /bin/v-check-user-password    - Verify yescrypt password
+✓ /bin/v-check-user-2fa         - Verify 2FA token
+✓ /bin/v-log-user-login         - Log login attempts
+✓ /bin/v-log-user-logout        - Log logout events
+
+================================================================================
+                         KEY FINDINGS EXPLAINED
+================================================================================
+
+ARCHITECTURE:
+-------------
+The system uses a multi-tier architecture with privilege separation:
+
+    Browser
+       ↓ HTTP
+    PHP Web Application (runs as www-data - low privilege)
+       ↓ exec() with sudo
+    Bash Scripts (runs as root - high privilege)
+       ↓ Read/Write
+    User Data Files (stores password hashes in text files)
+
+WHY THIS DESIGN?
+- Security: Web layer can't directly access password hashes
+- Separation: Clear boundary between UI and authentication
+- Flexibility: Easy to audit backend scripts independently
+
+LOGIN FLOW (3 STEPS):
+---------------------
+1. USERNAME ENTRY
+   - User enters username
+   - Regex validation: /^[[:alnum:]][-|\.|_[:alnum:]]{0,28}[[:alnum:]]$/
+   - Stored in $_SESSION['login']['username']
+
+2. PASSWORD ENTRY
+   - Backend fetches salt and hash method (v-get-user-salt)
+   - PHP hashes password using the method (MD5/SHA-512/yescrypt/DES)
+   - Backend verifies hash (v-check-user-hash)
+   - Additional checks: login disabled, IP whitelist
+
+3. TWO-FACTOR AUTHENTICATION (if enabled)
+   - User enters 6-digit TOTP code
+   - Backend verifies (v-check-user-2fa)
+   - Session created on success
+
+SECURITY FEATURES (10+):
+------------------------
+1. CSRF Protection - Token on every form
+2. Session Timeout - Configurable inactivity timeout
+3. IP Verification - Tracks user IP, prevents hijacking
+4. Brute Force - 2-second delay on failed login
+5. Password Hashing - yescrypt/SHA-512/MD5/DES
+6. Two-Factor Auth - TOTP support
+7. Session Regeneration - After login (prevents fixation)
+8. Comprehensive Logging - All auth events logged
+9. IP Whitelisting - Per-user allowed IPs
+10. Login Disable - Per-user login lock
+
+PASSWORD HASHING:
+-----------------
+Supports 4 algorithms (for compatibility):
+
+1. Yescrypt (RECOMMENDED)
+   - Format: $y$j9T$salt$hash...
+   - Most secure, modern algorithm
+   - Password passed via temp file (secure)
+
+2. SHA-512
+   - Format: $6$rounds=5000$salt$hash...
+   - Good security, widely used
+
+3. MD5 (LEGACY)
+   - Format: $1$salt$hash...
+   - Acceptable but aging
+
+4. DES (VERY OLD)
+   - Format: 2-char salt + 11-char hash
+   - Weak, not recommended
+
+SESSION MANAGEMENT:
+-------------------
+Key session variables:
+- $_SESSION['user'] - Logged-in username
+- $_SESSION['token'] - CSRF token (regenerated)
+- $_SESSION['userContext'] - Role (admin/user)
+- $_SESSION['LAST_ACTIVITY'] - For timeout tracking
+- $_SESSION['look'] - Impersonated user (admin only)
+
+Session lifecycle:
+1. session_start() on every page
+2. User logs in → variables set
+3. session_regenerate_id() after login
+4. Timeout/logout → destroy_sessions()
+
+USER ROLES:
+-----------
+ADMIN:
+- Can see all users
+- Can impersonate other users
+- Lands on /list/user/
+
+REGULAR USER:
+- Limited to own account
+- Lands on first available feature page
+- Feature priority: Web > DNS > Mail > DB > Cron > Backup
+
+================================================================================
+                      RECOMMENDATIONS FOR REWRITE
+================================================================================
+
+CURRENT STACK:
+--------------
+Frontend: PHP 7.4+ with sessions
+Backend: Bash scripts via exec()
+Storage: Text files
+Communication: JSON via shell commands
+Hashing: crypt() with multiple methods
+
+RECOMMENDED MODERN STACK:
+-------------------------
+Frontend: PHP 8.2+ or Node.js/TypeScript
+Backend: Native PHP or REST API
+Storage: PostgreSQL or MySQL
+Communication: Database queries or HTTP API
+Hashing: password_hash() with PASSWORD_ARGON2ID
+
+WHAT TO KEEP:
+-------------
+✓ Multi-step authentication flow
+✓ CSRF protection (critical)
+✓ Session regeneration after login
+✓ Comprehensive logging
+✓ Two-factor authentication
+✓ Role-based access control
+✓ IP tracking (configurable)
+✓ Session timeout
+
+WHAT TO IMPROVE:
+----------------
+→ Replace exec() calls with native code
+→ Use database instead of flat files
+→ Add rate limiting (Redis/Memcached)
+→ Add account lockout after X failures
+→ Implement OAuth2/OpenID Connect
+→ Add WebAuthn/FIDO2 support
+→ Better error handling and logging
+→ Email/SMS notifications for login events
+→ Remember device functionality
+→ Passwordless authentication options
+
+MODERN ALTERNATIVES:
+--------------------
+Instead of:
+    exec('v-check-user-hash admin /tmp/hash 192.168.1.1')
+
+Use:
+    password_verify($password, $user->password_hash)
+
+Instead of:
+    $hash = crypt($password, '$6$rounds=5000$' . $salt . '$')
+
+Use:
+    $hash = password_hash($password, PASSWORD_ARGON2ID)
+
+================================================================================
+                         HOW TO USE THIS ANALYSIS
+================================================================================
+
+STEP 1: Understand the System
+   → Read LOGIN_SIMPLE_OVERVIEW.md (10 minutes)
+   → Quick introduction to architecture and flow
+
+STEP 2: Deep Dive
+   → Read LOGIN_SYSTEM_ANALYSIS.md (30 minutes)
+   → Complete understanding of all components
+
+STEP 3: Reference While Coding
+   → Use LOGIN_QUICK_REFERENCE.md
+   → Copy-paste code snippets
+   → Follow security checklists
+
+STEP 4: Review Source Code
+   → /web/login/index.php - Main logic
+   → /web/inc/main.php - Session management
+   → /bin/v-check-* - Backend authentication
+
+STEP 5: Plan Your Rewrite
+   → Choose your tech stack
+   → Design your database schema
+   → Plan your API endpoints
+   → Implement security features
+   → Add modern authentication methods
+
+================================================================================
+                            QUICK EXAMPLES
+================================================================================
+
+CSRF TOKEN GENERATION:
+----------------------
+$token = bin2hex(random_bytes(16));
+$_SESSION['token'] = $token;
+
+CSRF VERIFICATION:
+------------------
+if ($method['token'] !== $_SESSION['token']) {
+    header('Location: /login/');
+    die();
+}
+
+PASSWORD HASHING (MODERN):
+--------------------------
+// Hash
+$hash = password_hash($password, PASSWORD_ARGON2ID);
+
+// Verify
+if (password_verify($password, $hash)) {
+    // Success
+}
+
+SESSION CREATION:
+-----------------
+$_SESSION['user'] = $username;
+$_SESSION['LAST_ACTIVITY'] = time();
+$_SESSION['userContext'] = 'admin';
+session_regenerate_id(true);
+
+SESSION TIMEOUT CHECK:
+----------------------
+if ($_SESSION['LAST_ACTIVITY'] + (30 * 60) < time()) {
+    destroy_sessions();
+    header('Location: /login/');
+}
+
+================================================================================
+                         TESTING YOUR REWRITE
+================================================================================
+
+AUTHENTICATION TESTS:
+---------------------
+□ Valid credentials → success
+□ Invalid username → failure
+□ Invalid password → failure
+□ Suspended account → failure
+□ IP not in whitelist → failure
+□ 2FA wrong token → failure
+□ 2FA correct token → success
+
+SESSION TESTS:
+--------------
+□ Session timeout after inactivity
+□ Session persists across pages
+□ IP change destroys session
+□ CSRF mismatch rejects request
+□ Logout clears all data
+
+SECURITY TESTS:
+---------------
+□ Password not in logs
+□ Failed login delay works
+□ Session fixation prevented
+□ XSS attempts sanitized
+□ SQL injection prevented
+□ Brute force rate limited
+
+================================================================================
+                              RESOURCES
+================================================================================
+
+SOURCE CODE:
+- /web/login/index.php - 470 lines of login logic
+- /web/inc/main.php - Session management
+- /bin/v-check-user-hash - Password verification
+
+DOCUMENTATION:
+- LOGIN_DOCUMENTATION_README.md - Start here
+- LOGIN_SIMPLE_OVERVIEW.md - Quick intro
+- LOGIN_QUICK_REFERENCE.md - Code snippets
+- LOGIN_SYSTEM_ANALYSIS.md - Complete analysis
+
+EXTERNAL RESOURCES:
+- PHP password_hash(): https://www.php.net/password_hash
+- OWASP Authentication: https://cheatsheetseries.owasp.org/
+- OAuth2 Spec: https://oauth.net/2/
+- WebAuthn Guide: https://webauthn.guide/
+
+================================================================================
+                            CONCLUSION
+================================================================================
+
+You now have:
+✓ Complete understanding of how HestiaCP login works
+✓ Detailed documentation of all components
+✓ Security best practices explained
+✓ Code snippets ready to use
+✓ Recommendations for modern rewrite
+✓ Testing checklists
+✓ Architecture diagrams
+
+Ready to rewrite the project from scratch!
+
+Questions? Review the documentation files or examine the source code.
+
+Good luck with your rewrite! 🚀
+
+================================================================================
+                              END OF SUMMARY
+================================================================================
